@@ -1,0 +1,10 @@
+[package]
+name = "die-yield-calculator"
+version = "0.1.0"
+authors = ["Redfire <redfire75369@hotmail.com>"]
+edition = "2018"
+
+[dependencies]
+iced = { version = "0.3.0", features = ["canvas"] }
+iced_graphics = "0.2.0"
+rand = "0.8.4"

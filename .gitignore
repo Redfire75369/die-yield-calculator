@@ -1,0 +1,15 @@
+### Rust ###
+## Compiler Output ###
+target/**
+
+## Cargo ##
+# Cargo.lock
+
+### Editors/IDEs ###
+## VS Code ##
+.vscode/**/*
+.vscode-test
+*.code-workspace
+
+## CLion ##
+.idea/**/*

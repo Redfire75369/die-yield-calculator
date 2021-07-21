@@ -4,16 +4,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{
-	canvas::{Cache, Program, Cursor},
-	Rectangle, Color, Vector, Size,
-};
-use crate::wafer::Wafer;
-use crate::ui::ui::Message;
-use iced::canvas::{Geometry, Path, Stroke};
-use crate::die::DieType;
-use crate::util::random;
 use std::ops::{Add, Sub};
+
+use iced::{
+	canvas::{Cache, Cursor, Program},
+	Color, Rectangle, Size, Vector,
+};
+use iced::canvas::{Geometry, Path, Stroke};
+
+use crate::die::DieType;
+use crate::ui::ui::Message;
+use crate::util::random;
+use crate::wafer::{Wafer, YieldModel};
 
 #[derive(Debug)]
 pub struct WaferDisplay {
@@ -88,7 +90,11 @@ impl Program<Message> for WaferDisplay {
 				}
 			}
 
-			let bad_dies = ((die_types.0 as f32) * (1.0 - self.wafer.yield_murphy())) as u32;
+			let die_yield = match self.wafer.yield_model {
+				YieldModel::Poisson => self.wafer.yield_poisson(),
+				YieldModel::Murphy => self.wafer.yield_murphy(),
+			};
+			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)) as u32;
 
 			let mut i = 0;
 

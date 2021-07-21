@@ -4,11 +4,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+use std::f32::consts::PI;
+use std::fmt::{Display, Formatter};
+
 use crate::die::{Die, DieType};
 use crate::util::{Coordinate, Rectangle};
-use std::f32::consts::PI;
 
 type Grid<T> = Vec<Vec<T>>;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum YieldModel {
+	Poisson,
+	Murphy,
+}
+
+impl YieldModel {
+	pub const ALL: [YieldModel; 2] = [YieldModel::Poisson, YieldModel::Murphy];
+}
+
+impl Display for YieldModel {
+	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+		match self {
+			YieldModel::Poisson => f.write_str("Poisson's Model"),
+			YieldModel::Murphy => f.write_str("Murphy's Model"),
+		}
+	}
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Wafer {
@@ -21,6 +42,7 @@ pub struct Wafer {
 	pub centered: bool,
 
 	pub die: Die,
+	pub yield_model: YieldModel,
 }
 
 impl Wafer {
@@ -41,7 +63,6 @@ impl Wafer {
 			as u32
 	}
 
-	#[allow(dead_code)]
 	pub fn yield_poisson(&self) -> f32 {
 		(-self.die.area() * (self.defect_rate / 100.0)).exp()
 	}
@@ -119,6 +140,7 @@ impl Default for Wafer {
 			translation: (0.0, 0.0),
 			centered: false,
 			die: Die::default(),
+			yield_model: YieldModel::Murphy,
 		}
 	}
 }

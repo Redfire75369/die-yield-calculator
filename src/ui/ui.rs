@@ -4,11 +4,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{Sandbox, Element, Column, Align, Text, Row, Length, Container, Canvas, Checkbox, PickList, pick_list};
-use crate::wafer::Wafer;
-use crate::ui::input::{NumberInput};
+use std::fmt::{Debug, Display, Error, Formatter};
+
+use iced::{Align, Canvas, Checkbox, Column, Container, Element, Length, pick_list, PickList, Row, Sandbox, Text};
+
+use crate::ui::input::NumberInput;
 use crate::ui::wafer::WaferDisplay;
-use std::fmt::{Display, Formatter, Debug, Error};
+use crate::wafer::{Wafer, YieldModel};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Diameter(u16);
@@ -55,7 +57,7 @@ pub struct Calculator {
 	scribe_vertical: NumberInput,
 	translate_horizontal: NumberInput,
 	translate_vertical: NumberInput,
-	centered: bool,
+	yield_model: pick_list::State<YieldModel>,
 
 	wafer_display: WaferDisplay,
 }
@@ -80,6 +82,7 @@ pub enum Message {
 	DimensionsEqual(Component, bool),
 	Diameter(Diameter),
 	Center(bool),
+	YieldModel(YieldModel),
 }
 
 impl Sandbox for Calculator {
@@ -102,7 +105,7 @@ impl Sandbox for Calculator {
 			scribe_vertical: NumberInput::new(wafer.scribe_lanes.1, 0.0001, 50.0, 0.05, Component::ScribeVertical),
 			translate_horizontal: NumberInput::new(wafer.translation.0, -50.0, 50.0, 0.05, Component::TranslateHorizontal),
 			translate_vertical: NumberInput::new(wafer.translation.1, -50.0, 50.0, 0.05, Component::TranslateVertical),
-			centered: false,
+			yield_model: pick_list::State::default(),
 
 			wafer_display: WaferDisplay::new(&wafer),
 		}
@@ -193,10 +196,8 @@ impl Sandbox for Calculator {
 				self.wafer.diameter = d.0 as f32;
 				self.diameter = d;
 			}
-			Message::Center(b) => {
-				self.wafer.centered = b;
-				self.centered = b;
-			}
+			Message::Center(b) => self.wafer.centered = b,
+			Message::YieldModel(m) => self.wafer.yield_model = m,
 		}
 
 		self.wafer.die.width = self.die_width.get();
@@ -212,6 +213,7 @@ impl Sandbox for Calculator {
 
 	fn view(&mut self) -> Element<Message> {
 		let diameters = &Diameter::ALL[..];
+		let yield_models = &YieldModel::ALL[..];
 
 		Container::new(
 			Row::with_children(vec![
@@ -320,7 +322,22 @@ impl Sandbox for Calculator {
 					.into(),
 					Row::with_children(vec![
 						Text::new("Die Centering:").into(),
-						Checkbox::new(self.centered, "", Message::Center).into(),
+						Checkbox::new(self.wafer.centered, "", Message::Center).into(),
+					])
+					.height(Length::Shrink)
+					.width(Length::Fill)
+					.align_items(Align::Center)
+					.spacing(4)
+					.into(),
+					Row::with_children(vec![
+						Text::new("Yield Modelling: ").into(),
+						PickList::new(
+							&mut self.yield_model,
+							yield_models,
+							Some(self.wafer.yield_model.clone()),
+							Message::YieldModel,
+						)
+						.into(),
 					])
 					.height(Length::Shrink)
 					.width(Length::Fill)

@@ -6,4 +6,5 @@
 
 pub mod input;
 pub mod ui;
+pub mod styles;
 pub mod wafer;

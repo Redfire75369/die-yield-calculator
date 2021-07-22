@@ -4,9 +4,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{Align, button, Button, Column, Length, Row, Text, text_input, TextInput};
+use iced::{Align, button, Button, Column, Length, Row, Text, text_input, TextInput, Color, Background};
 
 use crate::ui::ui::{Component, Message};
+use crate::ui::styles;
+
+pub struct Disabled;
+
+impl text_input::StyleSheet for Disabled {
+	fn active(&self) -> text_input::Style {
+		text_input::Style {
+			background: Background::Color(Color::from_rgb8(210, 210, 210)),
+			..styles::text_input::Default::active()
+		}
+	}
+
+	fn focused(&self) -> text_input::Style {
+		self.active()
+	}
+
+	fn placeholder_color(&self) -> Color {
+		styles::text_input::Default::placeholder_color()
+	}
+
+	fn value_color(&self) -> Color {
+		styles::text_input::Default::value_color()
+	}
+
+	fn selection_color(&self) -> Color {
+		styles::text_input::Default::selection_color()
+	}
+}
 
 #[derive(Debug, Clone)]
 pub struct NumberInput {
@@ -68,14 +96,18 @@ impl NumberInput {
 
 	pub fn view<'a>(&'a mut self, row: Row<'a, Message>) -> Row<'a, Message> {
 		// TODO: Darken text inputs when disabled
-		row.push(
-			TextInput::new(&mut self.input, "", &format!("{:.4}", self.value), {
+		row.push({
+			let t = TextInput::new(&mut self.input, "", &format!("{:.4}", self.value), {
 				let c = self.component;
 				let b = self.disabled;
 				move |s| Message::Edit(c, s, b)
-			})
-			.padding(16),
-		)
+			}).padding(16);
+			if self.disabled {
+				t.style(Disabled)
+			} else {
+				t
+			}
+		})
 		.push(
 			Column::with_children(vec![
 				Button::new(&mut self.increment, Text::new("▲"))

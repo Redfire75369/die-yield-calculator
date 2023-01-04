@@ -23,27 +23,45 @@ pub fn diameter(diameter: Diameter) -> Row<'static, Message> {
 		picker.width(Length::FillPortion(5)),
 		horizontal_space(Length::FillPortion(1))
 	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+		.height(Length::Shrink)
+		.width(Length::Fill)
+		.align_items(Alignment::Center)
 }
 
 pub fn defect_rate(defect_rate: f32) -> Row<'static, Message> {
 	let label = container(text("Defect Rate (#/cm²)")).height(ROW_HEIGHT).center_y();
-	let input = container(NumberInput::new(defect_rate, 100.0, |f| {
+	let input = container(NumberInput::new(defect_rate, 10000.0, |f| {
 		Message::NumberInputChange(Component::DefectRate, f)
-	}))
-	.height(ROW_HEIGHT)
-	.center_y();
+	}).min(0.0).step(0.05))
+		.height(ROW_HEIGHT)
+		.center_y();
 
 	row![
 		label.width(Length::FillPortion(4)),
 		input.width(Length::FillPortion(5)),
 		horizontal_space(Length::FillPortion(1))
 	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+		.height(Length::Shrink)
+		.width(Length::Fill)
+		.align_items(Alignment::Center)
+}
+
+pub fn edge_loss(edge_loss: f32) -> Row<'static, Message> {
+	let label = container(text("Edge Loss (mm)")).height(ROW_HEIGHT).center_y();
+	let input = container(NumberInput::new(edge_loss, 25.0, |f| {
+		Message::NumberInputChange(Component::EdgeLoss, f)
+	}).min(0.0).step(0.2))
+		.height(ROW_HEIGHT)
+		.center_y();
+
+	row![
+		label.width(Length::FillPortion(4)),
+		input.width(Length::FillPortion(5)),
+		horizontal_space(Length::FillPortion(1))
+	]
+		.height(Length::Shrink)
+		.width(Length::Fill)
+		.align_items(Alignment::Center)
 }
 
 pub fn die_centering(centered: bool) -> Row<'static, Message> {

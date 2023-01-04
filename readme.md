@@ -3,8 +3,11 @@
 
 # Die Yield Calculator
 
-This die yield calculator was inspired by [Caly Technology's Die Yield Calculator](https://caly-technologies.com/die-yield-calculator/).
+This die yield calculator was inspired by [Caly Technology's Die Yield Calculator] (Archived from the [Original]).
 
 ## Licensing
 
 This project is licensed under the Mozilla Public License 2.0. The full text of the license can be found [here](license.md).
+
+[Caly Technology's Die Yield Calculator]: https://web.archive.org/web/20220603024104/https://caly-technologies.com/die-yield-calculator/
+[Original]: https://caly-technologies.com/die-yield-calculator/

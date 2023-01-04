@@ -8,7 +8,7 @@ use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
 
-use crate::view::components::{defect_rate, diameter, die_centering, die_size, scribe_lines, translation, yield_model};
+use crate::view::components::{defect_rate, diameter, die_centering, die_size, edge_loss, scribe_lines, translation, yield_model};
 use crate::view::wafer::WaferViewState;
 use crate::wafer::{Diameter, Wafer, YieldModel};
 
@@ -28,6 +28,7 @@ pub enum Component {
 	DieHeight,
 	Diameter,
 	DefectRate,
+	EdgeLoss,
 	ScribeHorizontal,
 	ScribeVertical,
 	TranslateHorizontal,
@@ -91,6 +92,7 @@ impl Sandbox for Calculator {
 				}
 				Component::DieHeight => self.wafer.die.height = f,
 				Component::DefectRate => self.wafer.defect_rate = f,
+				Component::EdgeLoss => self.wafer.edge_loss = f,
 				Component::ScribeHorizontal => {
 					self.wafer.scribe_lanes.0 = f;
 					if self.scribe_equal {
@@ -113,6 +115,7 @@ impl Sandbox for Calculator {
 		let die_size_inputs = die_size(&self.wafer, self.die_square);
 		let diameter_input = diameter(self.diameter);
 		let defect_rate_input = defect_rate(self.wafer.defect_rate);
+		let edge_loss_input = edge_loss(self.wafer.edge_loss);
 		let scribe_lanes_inputs = scribe_lines(&self.wafer, self.scribe_equal);
 		let translation_inputs = translation(&self.wafer);
 		let centering_input = die_centering(self.wafer.centered);
@@ -122,6 +125,7 @@ impl Sandbox for Calculator {
 			die_size_inputs,
 			diameter_input,
 			defect_rate_input,
+			edge_loss_input,
 			scribe_lanes_inputs,
 			translation_inputs,
 			centering_input,

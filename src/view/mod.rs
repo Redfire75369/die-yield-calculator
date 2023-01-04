@@ -4,7 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-pub mod input;
-pub mod ui;
-pub mod styles;
-pub mod wafer;
+use iced::Length;
+
+pub use calculator::Calculator;
+
+mod calculator;
+pub mod components;
+mod wafer;
+
+const ROW_HEIGHT: Length = Length::Units(42);

@@ -4,56 +4,58 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use std::ops::{Add, Sub};
-
-use iced::{
-	canvas::{Cache, Cursor, Program},
-	Color, Rectangle, Size, Vector,
-};
-use iced::canvas::{Geometry, Path, Stroke};
+use iced::{Color, Length, Rectangle, Size, Theme, Vector};
+use iced::widget::Canvas;
+use iced::widget::canvas::{Cache, Cursor, Geometry, Path, Program, Stroke};
 
 use crate::die::DieType;
-use crate::ui::ui::Message;
 use crate::util::random;
+use crate::view::calculator::Message;
 use crate::wafer::{Wafer, YieldModel};
 
-#[derive(Debug)]
-pub struct WaferDisplay {
-	pub wafer: Wafer,
+#[derive(Default)]
+pub struct WaferViewState {
 	cache: Cache,
 }
 
-impl WaferDisplay {
-	pub fn new(wafer: &Wafer) -> WaferDisplay {
-		WaferDisplay {
-			wafer: wafer.clone(),
-			cache: Cache::default(),
-		}
+impl WaferViewState {
+	pub fn request_redraw(&mut self) {
+		self.cache.clear()
 	}
 
-	pub fn update(&mut self, wafer: &Wafer) {
-		let w = wafer.clone();
-		if self.wafer != w {
-			self.wafer = w;
-			self.cache.clear();
-		}
+	pub fn view<'a>(&'a self, wafer: &'a Wafer) -> Canvas<Message, Theme, WaferView<'a>> {
+		Canvas::new(WaferView { state: self, wafer }).width(Length::Fill).height(Length::Fill)
 	}
 }
 
-impl Program<Message> for WaferDisplay {
-	fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
-		let wafer = self.cache.draw(bounds.size(), |frame| {
+pub struct WaferView<'a> {
+	state: &'a WaferViewState,
+	wafer: &'a Wafer,
+}
+
+impl<'a> Program<Message> for WaferView<'a> {
+	type State = ();
+
+	fn draw(&self, _state: &(), _theme: &Theme, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+		let wafer = self.state.cache.draw(bounds.size(), |frame| {
 			let center = frame.center();
 			let dimension = frame.width().min(frame.height()) * 0.8;
 			let scale = dimension / self.wafer.diameter;
-			let top_left = center.sub(Vector::new(dimension / 2.0, dimension / 2.0));
+			let top_left = center - Vector::new(dimension / 2.0, dimension / 2.0);
 
 			frame.stroke(
 				&Path::rectangle(
-					top_left.sub(Vector::new(dimension / 20.0, dimension / 20.0)),
+					top_left - Vector::new(dimension * 0.05, dimension * 0.1),
+					Size::new(dimension * 1.1, dimension * 1.18),
+				),
+				Stroke::default().with_color(Color::from_rgb8(120, 120, 120)),
+			);
+			frame.stroke(
+				&Path::rectangle(
+					top_left - Vector::new(dimension * 0.025, dimension * 0.025),
 					Size::new(dimension * 1.05, dimension * 1.05),
 				),
-				Stroke::default().with_color(Color::from_rgb8(17, 170, 170)),
+				Stroke::default().with_color(Color::from_rgb8(170, 170, 170)),
 			);
 			frame.stroke(
 				&Path::circle(center, dimension / 2.0),
@@ -70,7 +72,7 @@ impl Program<Message> for WaferDisplay {
 			let die_grid = self.wafer.get_dies();
 			for die_column in &die_grid {
 				for (die_type, die_coord) in die_column {
-					let tl = top_left.add(Vector::new(die_coord.x, die_coord.y) * scale);
+					let tl = top_left + Vector::new(die_coord.x, die_coord.y) * scale;
 
 					match die_type {
 						DieType::Complete => {
@@ -104,7 +106,7 @@ impl Program<Message> for WaferDisplay {
 
 				let (die_type, die_coord) = die_grid[x][y];
 				if die_type == DieType::Complete {
-					let tl = top_left.add(Vector::new(die_coord.x, die_coord.y) * scale);
+					let tl = top_left + Vector::new(die_coord.x, die_coord.y) * scale;
 					let center = Rectangle::new(tl, die_size).center();
 					frame.fill_rectangle(tl, die_size, Color::from_rgb8(70, 70, 70));
 					frame.fill(

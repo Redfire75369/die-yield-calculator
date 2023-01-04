@@ -2,8 +2,17 @@
 name = "die-yield-calculator"
 version = "0.1.0"
 authors = ["Redfire <redfire75369@hotmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-iced = { version = "0.3.0", features = ["canvas"] }
-rand = "0.8.4"
+rand = "0.8.5"
+
+[dependencies.iced]
+version = "0.6.0"
+default-features = false
+features = ["canvas", "glow"]
+
+[dependencies.iced_aw]
+git = "https://github.com/iced-rs/iced_aw"
+default-features = false
+features = ["grid", "number_input"]

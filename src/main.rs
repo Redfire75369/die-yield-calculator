@@ -6,11 +6,11 @@
 
 use iced::{Application, Settings};
 
-use crate::ui::ui::Calculator;
+use crate::view::Calculator;
 
 pub mod die;
-pub mod ui;
 pub mod util;
+pub mod view;
 pub mod wafer;
 
 fn main() -> iced::Result {

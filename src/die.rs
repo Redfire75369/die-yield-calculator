@@ -30,6 +30,6 @@ impl Die {
 
 impl Default for Die {
 	fn default() -> Die {
-		Die { width: 1.2, height: 1.2 }
+		Die { width: 10.0, height: 10.0 }
 	}
 }

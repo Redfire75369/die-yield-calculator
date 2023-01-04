@@ -52,7 +52,7 @@ impl Sandbox for Calculator {
 		let wafer = Wafer::default();
 		Calculator {
 			wafer,
-			diameter: Diameter::FOUR,
+			diameter: Diameter::TWELVE,
 
 			die_square: false,
 			scribe_equal: false,

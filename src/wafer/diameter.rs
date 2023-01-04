@@ -24,7 +24,7 @@ impl Diameter {
 		Diameter::THREE,
 		Diameter::FOUR,
 		Diameter::SIX,
-		Diameter::EIGHTEEN,
+		Diameter::EIGHT,
 		Diameter::TWELVE,
 		Diameter::EIGHTEEN,
 	];

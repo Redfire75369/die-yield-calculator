@@ -27,7 +27,7 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 		.height(ROW_HEIGHT)
 		.center_y(),
 		container(
-			NumberInput::new(wafer.die.height, 33.0, |f| Message::NumberInputChange(Component::DieWidth, f))
+			NumberInput::new(wafer.die.height, 33.0, |f| Message::NumberInputChange(Component::DieHeight, f))
 				.min(0.001)
 				.step(0.2)
 		)

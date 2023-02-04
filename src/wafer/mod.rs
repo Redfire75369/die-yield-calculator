@@ -115,24 +115,6 @@ impl Wafer {
 			})
 			.collect()
 	}
-
-	pub fn get_die_counts(&self) -> (u32, u32, u32, u32) {
-		let mut die_types = (0, 0, 0, 0);
-
-		let die_grid = self.get_dies();
-		for die_column in &die_grid {
-			for (die_type, _) in die_column {
-				match die_type {
-					DieType::Complete => die_types.0 += 1,
-					DieType::Partial => die_types.1 += 1,
-					DieType::Wasted => die_types.2 += 1,
-					DieType::None => die_types.3 += 1,
-				}
-			}
-		}
-
-		die_types
-	}
 }
 
 impl Default for Wafer {

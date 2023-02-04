@@ -6,7 +6,7 @@
 
 use iced::{Color, Length, Rectangle, Size, Theme, Vector};
 use iced::widget::Canvas;
-use iced::widget::canvas::{Cache, Cursor, Geometry, Path, Program, Stroke};
+use iced::widget::canvas::{Cache, Cursor, Geometry, Path, Program, Stroke, Text};
 
 use crate::die::DieType;
 use crate::util::random;
@@ -41,12 +41,13 @@ impl<'a> Program<Message> for WaferView<'a> {
 			let center = frame.center();
 			let dimension = frame.width().min(frame.height()) * 0.8;
 			let scale = dimension / self.wafer.diameter;
+			let center = center - Vector::new(0.0, dimension * 0.05);
 			let top_left = center - Vector::new(dimension / 2.0, dimension / 2.0);
 
 			frame.stroke(
 				&Path::rectangle(
-					top_left - Vector::new(dimension * 0.05, dimension * 0.1),
-					Size::new(dimension * 1.1, dimension * 1.18),
+					top_left - Vector::new(dimension * 0.05, dimension * 0.05),
+					Size::new(dimension * 1.1, dimension * 1.225),
 				),
 				Stroke::default().with_color(Color::from_rgb8(120, 120, 120)),
 			);
@@ -59,14 +60,14 @@ impl<'a> Program<Message> for WaferView<'a> {
 			);
 			frame.stroke(
 				&Path::circle(center, dimension / 2.0),
-				Stroke::default().with_color(Color::from_rgb8(200, 0, 0)),
+				Stroke::default().with_color(Color::from_rgb8(200, 0, 0)).with_width(1.5),
 			);
 			frame.stroke(
 				&Path::circle(center, (dimension / 2.0) * (self.wafer.inner_diameter() / self.wafer.diameter)),
-				Stroke::default().with_color(Color::from_rgb8(0, 200, 0)),
+				Stroke::default().with_color(Color::from_rgb8(0, 200, 0)).with_width(1.5),
 			);
 
-			let mut die_types = (0, 0, 0, 0);
+			let mut die_types = (0, 0, 0); // Complete, Partial, Wasted, None
 
 			let die_size = Size::new(self.wafer.die.width * scale, self.wafer.die.height * scale);
 			let die_grid = self.wafer.get_dies();
@@ -87,7 +88,7 @@ impl<'a> Program<Message> for WaferView<'a> {
 							frame.fill_rectangle(tl, die_size, Color::from_rgba8(180, 60, 60, 0.8));
 							die_types.2 += 1;
 						}
-						DieType::None => die_types.3 += 1,
+						DieType::None => {},
 					}
 				}
 			}
@@ -113,6 +114,39 @@ impl<'a> Program<Message> for WaferView<'a> {
 					i += 1;
 				}
 			}
+
+			frame.fill_text(Text {
+				content: format!("Good Dies {}", die_types.0 - bad_dies),
+				position: top_left + Vector::new(dimension * 0.0125, dimension * 1.05),
+				..Text::default()
+			});
+			frame.fill_text(Text {
+				content: format!("Wasted Dies {}", die_types.2),
+				position: top_left + Vector::new(dimension * 0.0125, dimension * 1.115),
+				..Text::default()
+			});
+
+			frame.fill_text(Text {
+				content: format!("Defective Dies {}", bad_dies),
+				position: top_left + Vector::new(dimension * 0.3625, dimension * 1.05),
+				..Text::default()
+			});
+			frame.fill_text(Text {
+				content: format!("Partial Dies {}", die_types.1),
+				position: top_left + Vector::new(dimension * 0.3625, dimension * 1.115),
+				..Text::default()
+			});
+
+			frame.fill_text(Text {
+				content: format!("Maximum Dies {}", die_types.0),
+				position: top_left + Vector::new(dimension * 0.7125, dimension * 1.05),
+				..Text::default()
+			});
+			frame.fill_text(Text {
+				content: format!("Fab Yield {:.2}%", die_yield * 100.0),
+				position: top_left + Vector::new(dimension * 0.7125, dimension * 1.115),
+				..Text::default()
+			});
 		});
 
 		vec![wafer]

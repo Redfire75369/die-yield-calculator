@@ -10,7 +10,7 @@ use iced::widget::{column, container, row};
 
 use crate::die::RETICLE_SHORT;
 use crate::view::components::{
-	critical_area, defect_rate, diameter, die_centering, die_size, die_yield_info, edge_loss, scribe_lines, translation, yield_model,
+	critical_area, defect_rate, diameter, die_centering, die_size, edge_loss, scribe_lines, translation, yield_model,
 };
 use crate::view::wafer::WaferViewState;
 use crate::wafer::{Diameter, Wafer, YieldModel};
@@ -181,9 +181,7 @@ impl Sandbox for Calculator {
 			.center_x()
 			.center_y();
 
-		let wafer_yield_info = die_yield_info(&self.wafer);
-
-		let wafer_view_column = column![wafer_view.height(Length::FillPortion(4)), wafer_yield_info.height(Length::FillPortion(1))]
+		let wafer_view_column = column![wafer_view.height(Length::FillPortion(4))]
 			.height(Length::Shrink)
 			.width(Length::FillPortion(3))
 			.align_items(Alignment::Center);

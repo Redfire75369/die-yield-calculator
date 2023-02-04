@@ -8,11 +8,11 @@ edition = "2021"
 rand = "0.8.5"
 
 [dependencies.iced]
-version = "0.6.0"
+version = "0.7.0"
 default-features = false
 features = ["canvas", "glow"]
 
 [dependencies.iced_aw]
-git = "https://github.com/iced-rs/iced_aw"
+version = "0.3.0"
 default-features = false
 features = ["number_input"]

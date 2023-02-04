@@ -13,10 +13,10 @@ use crate::view::ROW_HEIGHT;
 use crate::wafer::{Diameter, Wafer, YieldModel};
 
 pub fn critical_area(wafer: &Wafer, simple: bool) -> Row<'static, Message> {
-	let label = container(text("Critical Area")).height(ROW_HEIGHT).center_y();
+	let label = container(text("Critical Area (mm²)")).height(ROW_HEIGHT).center_y();
 	let input = container(
 		NumberInput::new(wafer.critical_area, wafer.die.area(), Message::number_input(Component::CriticalArea))
-			.min(if simple { wafer.die.area() } else { 0.0001 })
+			.min(if simple { wafer.die.area() - f32::EPSILON } else { 0.0 })
 			.step(0.5),
 	)
 	.height(ROW_HEIGHT)

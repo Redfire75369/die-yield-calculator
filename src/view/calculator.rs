@@ -7,8 +7,8 @@
 use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
-use crate::die::RETICLE_SHORT;
 
+use crate::die::RETICLE_SHORT;
 use crate::view::components::{
 	critical_area, defect_rate, diameter, die_centering, die_size, die_yield_info, edge_loss, scribe_lines, translation, yield_model,
 };

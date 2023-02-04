@@ -14,35 +14,34 @@ use crate::view::ROW_HEIGHT;
 use crate::wafer::Wafer;
 
 pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
-	let labels = column![
-		container(text("Die Width (mm)")).height(ROW_HEIGHT).center_y(),
-		container(text("Die Height (mm)")).height(ROW_HEIGHT).center_y(),
-	];
+	let width_label = container(text("Die Width (mm)")).height(ROW_HEIGHT).center_y();
+	let height_label = container(text("Die Height (mm)")).height(ROW_HEIGHT).center_y();
+	let labels = column![width_label, height_label];
 
-	let inputs = column![
-		container(
-			NumberInput::new(
-				wafer.die.width,
-				max_other_dimension(wafer.die.height),
-				Message::number_input(Component::DieWidth)
-			)
-			.min(0.01)
-			.step(0.2)
+	let width_input = container(
+		NumberInput::new(
+			wafer.die.width,
+			max_other_dimension(wafer.die.height),
+			Message::number_input(Component::DieWidth),
 		)
-		.height(ROW_HEIGHT)
-		.center_y(),
-		container(
-			NumberInput::new(
-				wafer.die.height,
-				max_other_dimension(wafer.die.width),
-				Message::number_input(Component::DieHeight)
-			)
-			.min(0.01)
-			.step(0.2)
+		.min(0.01)
+		.step(0.2),
+	)
+	.height(ROW_HEIGHT)
+	.center_y();
+	let height_input = container(
+		NumberInput::new(
+			wafer.die.height,
+			max_other_dimension(wafer.die.width),
+			Message::number_input(Component::DieHeight),
 		)
-		.height(ROW_HEIGHT)
-		.center_y(),
-	];
+		.min(0.01)
+		.step(0.2),
+	)
+	.height(ROW_HEIGHT)
+	.center_y();
+
+	let inputs = column![width_input, height_input];
 
 	row![
 		labels.width(Length::FillPortion(4)),

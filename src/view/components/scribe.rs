@@ -13,27 +13,25 @@ use crate::view::ROW_HEIGHT;
 use crate::wafer::Wafer;
 
 pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
-	let labels = column![
-		container(text("Horizontal")).height(ROW_HEIGHT).center_y(),
-		container(text("Vertical")).height(ROW_HEIGHT).center_y(),
-	];
+	let horizontal_label = container(text("Horizontal")).height(ROW_HEIGHT).center_y();
+	let vertical_label = container(text("Vertical")).height(ROW_HEIGHT).center_y();
+	let labels = column![horizontal_label, vertical_label];
 
-	let inputs = column![
-		container(
-			NumberInput::new(wafer.scribe_lanes.0, 10.0, Message::number_input(Component::ScribeHorizontal))
-				.min(0.001)
-				.step(0.2)
-		)
-		.height(ROW_HEIGHT)
-		.center_y(),
-		container(
-			NumberInput::new(wafer.scribe_lanes.1, 10.0, Message::number_input(Component::ScribeVertical))
-				.min(0.001)
-				.step(0.2)
-		)
-		.height(ROW_HEIGHT)
-		.center_y(),
-	];
+	let horizontal_input = container(
+		NumberInput::new(wafer.scribe_lanes.0, 10.0, Message::number_input(Component::ScribeHorizontal))
+			.min(0.001)
+			.step(0.2),
+	)
+	.height(ROW_HEIGHT)
+	.center_y();
+	let vertical_input = container(
+		NumberInput::new(wafer.scribe_lanes.1, 10.0, Message::number_input(Component::ScribeVertical))
+			.min(0.001)
+			.step(0.2),
+	)
+	.height(ROW_HEIGHT)
+	.center_y();
+	let inputs = column![horizontal_input, vertical_input];
 
 	row![
 		container(text("Scribe Lines (mm)"))

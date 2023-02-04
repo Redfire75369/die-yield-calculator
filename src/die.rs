@@ -4,6 +4,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+pub const RETICLE_LONG: f32 = 33.0;
+pub const RETICLE_SHORT: f32 = 26.0;
+
+pub fn max_other_dimension(dimension: f32) -> f32 {
+	if dimension > RETICLE_SHORT {
+		RETICLE_SHORT
+	} else {
+		RETICLE_LONG
+	}
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum DieType {
 	Complete = 0,
@@ -30,6 +41,6 @@ impl Die {
 
 impl Default for Die {
 	fn default() -> Die {
-		Die { width: 10.0, height: 10.0 }
+		Die { width: 8.0, height: 8.0 }
 	}
 }

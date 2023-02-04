@@ -8,6 +8,7 @@ use iced::{Alignment, Length};
 use iced::widget::{checkbox, column, container, Row, row, text};
 use iced_aw::NumberInput;
 
+use crate::die::max_other_dimension;
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
 use crate::wafer::Wafer;
@@ -20,15 +21,15 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 
 	let inputs = column![
 		container(
-			NumberInput::new(wafer.die.width, 33.0, |f| Message::NumberInputChange(Component::DieWidth, f))
-				.min(0.001)
+			NumberInput::new(wafer.die.width, max_other_dimension(wafer.die.height), |f| Message::NumberInput(Component::DieWidth, f))
+				.min(0.01)
 				.step(0.2)
 		)
 		.height(ROW_HEIGHT)
 		.center_y(),
 		container(
-			NumberInput::new(wafer.die.height, 33.0, |f| Message::NumberInputChange(Component::DieHeight, f))
-				.min(0.001)
+			NumberInput::new(wafer.die.height, max_other_dimension(wafer.die.width), |f| Message::NumberInput(Component::DieHeight, f))
+				.min(0.01)
 				.step(0.2)
 		)
 		.height(ROW_HEIGHT)

@@ -20,14 +20,14 @@ pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
 
 	let inputs = column![
 		container(
-			NumberInput::new(wafer.scribe_lanes.0, 33.0, |f| Message::NumberInputChange(Component::ScribeHorizontal, f))
+			NumberInput::new(wafer.scribe_lanes.0, 10.0, |f| Message::NumberInput(Component::ScribeHorizontal, f))
 				.min(0.001)
 				.step(0.2)
 		)
 		.height(ROW_HEIGHT)
 		.center_y(),
 		container(
-			NumberInput::new(wafer.scribe_lanes.1, 33.0, |f| Message::NumberInputChange(Component::ScribeVertical, f))
+			NumberInput::new(wafer.scribe_lanes.1, 10.0, |f| Message::NumberInput(Component::ScribeVertical, f))
 				.min(0.001)
 				.step(0.2)
 		)

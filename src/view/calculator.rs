@@ -7,6 +7,7 @@
 use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
+use crate::die::RETICLE_SHORT;
 
 use crate::view::components::{
 	critical_area, defect_rate, diameter, die_centering, die_size, die_yield_info, edge_loss, scribe_lines, translation, yield_model,
@@ -73,31 +74,33 @@ impl Sandbox for Calculator {
 	fn update(&mut self, message: Message) {
 		match message {
 			Message::Center(b) => self.wafer.centered = b,
-			Message::Diameter(d) => {
-				self.wafer.diameter = d as u16 as f32;
-				self.diameter = d;
-			}
 			Message::Checkbox(c, b) => match c {
 				Component::DieWidth => {
-					self.wafer.die.height = self.wafer.die.width;
 					self.die_square = b;
+					self.wafer.die.height = self.wafer.die.width.min(RETICLE_SHORT);
 				}
 				Component::CriticalArea => {
 					self.simple_critical_area = b;
 					self.wafer.critical_area = self.wafer.die.area();
 				}
 				Component::ScribeHorizontal => {
-					self.wafer.scribe_lanes.1 = self.wafer.scribe_lanes.0;
 					self.scribe_equal = b;
+					self.wafer.scribe_lanes.1 = self.wafer.scribe_lanes.0;
 				}
 				_ => {}
-			},
-			Message::NumberInput(c, f) => match c {
+			}
+			Message::Diameter(d) => {
+				self.wafer.diameter = d as u16 as f32;
+				self.diameter = d;
+			}
+			Message::NumberInput(c, mut f) => match c {
 				Component::DieWidth => {
-					self.wafer.die.width = f;
 					if self.die_square {
+						f = f.min(RETICLE_SHORT);
 						self.wafer.die.height = f;
 					}
+					self.wafer.die.width = f;
+
 					if self.simple_critical_area {
 						self.wafer.critical_area = self.wafer.die.area();
 					}

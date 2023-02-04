@@ -11,7 +11,7 @@ use iced::widget::canvas::{Cache, Cursor, Geometry, Path, Program, Stroke};
 use crate::die::DieType;
 use crate::util::random;
 use crate::view::calculator::Message;
-use crate::wafer::{Wafer, YieldModel};
+use crate::wafer::Wafer;
 
 #[derive(Default)]
 pub struct WaferViewState {
@@ -92,10 +92,7 @@ impl<'a> Program<Message> for WaferView<'a> {
 				}
 			}
 
-			let die_yield = match self.wafer.yield_model {
-				YieldModel::Poisson => self.wafer.yield_poisson(),
-				YieldModel::Murphy => self.wafer.yield_murphy(),
-			};
+			let die_yield = self.wafer.yield_model.wafer_yield(&self.wafer);
 			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)) as u32;
 
 			let mut i = 0;

@@ -99,11 +99,7 @@ pub fn yield_model(yield_model: YieldModel) -> Row<'static, Message> {
 }
 
 pub fn die_yield_info(wafer: &Wafer) -> Row<Message> {
-	let die_yield = match wafer.yield_model {
-		YieldModel::Poisson => wafer.yield_poisson(),
-		YieldModel::Murphy => wafer.yield_murphy(),
-	};
-
+	let die_yield = wafer.yield_model.wafer_yield(wafer);
 	let die_types = wafer.get_die_counts();
 
 	let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)) as u32;

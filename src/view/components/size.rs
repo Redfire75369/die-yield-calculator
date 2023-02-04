@@ -38,7 +38,7 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 	row![
 		labels.width(Length::FillPortion(4)),
 		inputs.width(Length::FillPortion(5)),
-		checkbox("", die_square, |b| Message::DimensionsEqual(Component::DieWidth, b)).width(Length::FillPortion(1))
+		checkbox("", die_square, |b| Message::Checkbox(Component::DieWidth, b)).width(Length::FillPortion(1))
 	]
 	.height(Length::Shrink)
 	.width(Length::Fill)

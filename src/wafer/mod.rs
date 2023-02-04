@@ -19,6 +19,7 @@ type Grid<T> = Vec<Vec<T>>;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Wafer {
+	pub critical_area: f32,
 	pub diameter: f32,
 	pub edge_loss: f32,
 	pub defect_rate: f32,
@@ -137,7 +138,8 @@ impl Wafer {
 impl Default for Wafer {
 	fn default() -> Wafer {
 		Wafer {
-			diameter: 100.0,
+			critical_area: Die::default().area(),
+			diameter: 300.0,
 			edge_loss: 5.0,
 			defect_rate: 0.10,
 			scribe_lanes: (0.2, 0.2),

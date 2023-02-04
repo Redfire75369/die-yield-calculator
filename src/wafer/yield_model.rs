@@ -18,10 +18,16 @@ pub enum YieldModel {
 }
 
 impl YieldModel {
-	pub const ALL: &'static [YieldModel] = &[YieldModel::Poisson, YieldModel::Murphy, YieldModel::Rectangular, YieldModel::Moore, YieldModel::Seeds];
+	pub const ALL: &'static [YieldModel] = &[
+		YieldModel::Poisson,
+		YieldModel::Murphy,
+		YieldModel::Rectangular,
+		YieldModel::Moore,
+		YieldModel::Seeds,
+	];
 
 	pub fn wafer_yield(self, wafer: &Wafer) -> f32 {
-		let defects = wafer.die.area() * (wafer.defect_rate / 100.0);
+		let defects = wafer.critical_area * wafer.defect_rate / 100.0;
 		match self {
 			YieldModel::Poisson => (-defects).exp(),
 			YieldModel::Murphy => ((1.0 - (-defects).exp()) / (defects)).powi(2),

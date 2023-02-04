@@ -42,7 +42,7 @@ pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
 			.width(Length::FillPortion(4)),
 		labels.width(Length::FillPortion(2)),
 		inputs.width(Length::FillPortion(3)),
-		checkbox("", equal_scribe, |b| Message::DimensionsEqual(Component::ScribeHorizontal, b)).width(Length::FillPortion(1)),
+		checkbox("", equal_scribe, |b| Message::Checkbox(Component::ScribeHorizontal, b)).width(Length::FillPortion(1)),
 	]
 	.height(Length::Shrink)
 	.width(Length::Fill)

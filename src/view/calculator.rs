@@ -8,7 +8,9 @@ use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
 
-use crate::view::components::{defect_rate, diameter, die_centering, die_size, die_yield_info, edge_loss, scribe_lines, translation, yield_model};
+use crate::view::components::{
+	critical_area, defect_rate, diameter, die_centering, die_size, die_yield_info, edge_loss, scribe_lines, translation, yield_model,
+};
 use crate::view::wafer::WaferViewState;
 use crate::wafer::{Diameter, Wafer, YieldModel};
 
@@ -17,6 +19,7 @@ pub struct Calculator {
 	diameter: Diameter,
 
 	die_square: bool,
+	simple_critical_area: bool,
 	scribe_equal: bool,
 
 	wafer_view: WaferViewState,
@@ -26,6 +29,7 @@ pub struct Calculator {
 pub enum Component {
 	DieWidth,
 	DieHeight,
+	CriticalArea,
 	Diameter,
 	DefectRate,
 	EdgeLoss,
@@ -39,8 +43,8 @@ pub enum Component {
 pub enum Message {
 	Center(bool),
 	Diameter(Diameter),
-	DimensionsEqual(Component, bool),
-	NumberInputChange(Component, f32),
+	Checkbox(Component, bool),
+	NumberInput(Component, f32),
 	YieldModel(YieldModel),
 	None,
 }
@@ -55,6 +59,7 @@ impl Sandbox for Calculator {
 			diameter: Diameter::TWELVE,
 
 			die_square: false,
+			simple_critical_area: true,
 			scribe_equal: false,
 
 			wafer_view: WaferViewState::default(),
@@ -72,10 +77,14 @@ impl Sandbox for Calculator {
 				self.wafer.diameter = d as u16 as f32;
 				self.diameter = d;
 			}
-			Message::DimensionsEqual(c, b) => match c {
+			Message::Checkbox(c, b) => match c {
 				Component::DieWidth => {
 					self.wafer.die.height = self.wafer.die.width;
 					self.die_square = b;
+				}
+				Component::CriticalArea => {
+					self.simple_critical_area = b;
+					self.wafer.critical_area = self.wafer.die.area();
 				}
 				Component::ScribeHorizontal => {
 					self.wafer.scribe_lanes.1 = self.wafer.scribe_lanes.0;
@@ -83,14 +92,29 @@ impl Sandbox for Calculator {
 				}
 				_ => {}
 			},
-			Message::NumberInputChange(c, f) => match c {
+			Message::NumberInput(c, f) => match c {
 				Component::DieWidth => {
 					self.wafer.die.width = f;
 					if self.die_square {
 						self.wafer.die.height = f;
 					}
+					if self.simple_critical_area {
+						self.wafer.critical_area = self.wafer.die.area();
+					}
 				}
-				Component::DieHeight => self.wafer.die.height = f,
+				Component::DieHeight => {
+					if !self.die_square {
+						self.wafer.die.height = f;
+						if self.simple_critical_area {
+							self.wafer.critical_area = self.wafer.die.area();
+						}
+					}
+				}
+				Component::CriticalArea => {
+					if !self.simple_critical_area {
+						self.wafer.critical_area = f.min(self.wafer.die.area());
+					}
+				}
 				Component::DefectRate => self.wafer.defect_rate = f,
 				Component::EdgeLoss => self.wafer.edge_loss = f,
 				Component::ScribeHorizontal => {
@@ -113,6 +137,7 @@ impl Sandbox for Calculator {
 
 	fn view(&self) -> Element<'_, Message> {
 		let die_size_inputs = die_size(&self.wafer, self.die_square);
+		let critical_area_inputs = critical_area(&self.wafer, self.simple_critical_area);
 		let diameter_input = diameter(self.diameter);
 		let defect_rate_input = defect_rate(self.wafer.defect_rate);
 		let edge_loss_input = edge_loss(self.wafer.edge_loss);
@@ -123,6 +148,7 @@ impl Sandbox for Calculator {
 
 		let options = column![
 			die_size_inputs,
+			critical_area_inputs,
 			diameter_input,
 			defect_rate_input,
 			edge_loss_input,

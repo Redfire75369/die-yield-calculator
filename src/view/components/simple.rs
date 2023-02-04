@@ -12,6 +12,29 @@ use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
 use crate::wafer::{Diameter, Wafer, YieldModel};
 
+pub fn critical_area(wafer: &Wafer, simple: bool) -> Row<'static, Message> {
+	let label = container(text("Critical Area")).height(ROW_HEIGHT).center_y();
+	let input = container(
+		NumberInput::new(wafer.critical_area, wafer.die.area(), |f| {
+			Message::NumberInput(Component::CriticalArea, f)
+		})
+		.min(if simple { wafer.die.area() } else { 0.0001 })
+		.step(0.5),
+	)
+	.height(ROW_HEIGHT)
+	.center_y();
+	let check = checkbox("Simple", simple, |b| Message::Checkbox(Component::CriticalArea, b));
+
+	row![
+		label.width(Length::FillPortion(4)),
+		input.width(Length::FillPortion(3)),
+		check.width(Length::FillPortion(3)),
+	]
+	.height(Length::Shrink)
+	.width(Length::Fill)
+	.align_items(Alignment::Center)
+}
+
 pub fn diameter(diameter: Diameter) -> Row<'static, Message> {
 	let label = container(text("Wafer Diameter")).height(ROW_HEIGHT).center_y();
 	let picker = container(pick_list(Diameter::ALL, Some(diameter), Message::Diameter))
@@ -31,7 +54,7 @@ pub fn diameter(diameter: Diameter) -> Row<'static, Message> {
 pub fn defect_rate(defect_rate: f32) -> Row<'static, Message> {
 	let label = container(text("Defect Rate (#/cm²)")).height(ROW_HEIGHT).center_y();
 	let input = container(
-		NumberInput::new(defect_rate, 10000.0, |f| Message::NumberInputChange(Component::DefectRate, f))
+		NumberInput::new(defect_rate, 10000.0, |f| Message::NumberInput(Component::DefectRate, f))
 			.min(0.0)
 			.step(0.05),
 	)
@@ -51,7 +74,7 @@ pub fn defect_rate(defect_rate: f32) -> Row<'static, Message> {
 pub fn edge_loss(edge_loss: f32) -> Row<'static, Message> {
 	let label = container(text("Edge Loss (mm)")).height(ROW_HEIGHT).center_y();
 	let input = container(
-		NumberInput::new(edge_loss, 25.0, |f| Message::NumberInputChange(Component::EdgeLoss, f))
+		NumberInput::new(edge_loss, 25.0, |f| Message::NumberInput(Component::EdgeLoss, f))
 			.min(0.0)
 			.step(0.2),
 	)

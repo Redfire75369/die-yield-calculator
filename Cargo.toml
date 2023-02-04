@@ -15,4 +15,4 @@ features = ["canvas", "glow"]
 [dependencies.iced_aw]
 git = "https://github.com/iced-rs/iced_aw"
 default-features = false
-features = ["grid", "number_input"]
+features = ["number_input"]

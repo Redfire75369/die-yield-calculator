@@ -20,17 +20,18 @@ pub fn translation(wafer: &Wafer) -> Row<Message> {
 
 	let inputs = column![
 		container(
-			NumberInput::new(wafer.translation.0, wafer.die.width, |f| Message::NumberInput(
-				Component::TranslateHorizontal,
-				f
-			))
+			NumberInput::new(
+				wafer.translation.0,
+				wafer.die.width,
+				Message::number_input(Component::TranslateHorizontal)
+			)
 			.min(0.0)
 			.step(0.2)
 		)
 		.height(ROW_HEIGHT)
 		.center_y(),
 		container(
-			NumberInput::new(wafer.translation.1, wafer.die.height, |f| Message::NumberInput(Component::TranslateVertical, f))
+			NumberInput::new(wafer.translation.1, wafer.die.height, Message::number_input(Component::TranslateVertical))
 				.min(0.0)
 				.step(0.2)
 		)

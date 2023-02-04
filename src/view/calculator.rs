@@ -15,17 +15,6 @@ use crate::view::components::{
 use crate::view::wafer::WaferViewState;
 use crate::wafer::{Diameter, Wafer, YieldModel};
 
-pub struct Calculator {
-	wafer: Wafer,
-	diameter: Diameter,
-
-	die_square: bool,
-	simple_critical_area: bool,
-	scribe_equal: bool,
-
-	wafer_view: WaferViewState,
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Component {
 	DieWidth,
@@ -40,7 +29,7 @@ pub enum Component {
 	TranslateVertical,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Message {
 	Center(bool),
 	Diameter(Diameter),
@@ -48,6 +37,27 @@ pub enum Message {
 	NumberInput(Component, f32),
 	YieldModel(YieldModel),
 	None,
+}
+
+impl Message {
+	pub fn checkbox(component: Component) -> impl Fn(bool) -> Message + Copy {
+		move |boolean| Message::Checkbox(component, boolean)
+	}
+
+	pub fn number_input(component: Component) -> impl Fn(f32) -> Message + Copy {
+		move |float| Message::NumberInput(component, float)
+	}
+}
+
+pub struct Calculator {
+	wafer: Wafer,
+	diameter: Diameter,
+
+	die_square: bool,
+	simple_critical_area: bool,
+	scribe_equal: bool,
+
+	wafer_view: WaferViewState,
 }
 
 impl Sandbox for Calculator {
@@ -88,7 +98,7 @@ impl Sandbox for Calculator {
 					self.wafer.scribe_lanes.1 = self.wafer.scribe_lanes.0;
 				}
 				_ => {}
-			}
+			},
 			Message::Diameter(d) => {
 				self.wafer.diameter = d as u16 as f32;
 				self.diameter = d;

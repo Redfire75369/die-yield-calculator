@@ -21,16 +21,24 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 
 	let inputs = column![
 		container(
-			NumberInput::new(wafer.die.width, max_other_dimension(wafer.die.height), |f| Message::NumberInput(Component::DieWidth, f))
-				.min(0.01)
-				.step(0.2)
+			NumberInput::new(
+				wafer.die.width,
+				max_other_dimension(wafer.die.height),
+				Message::number_input(Component::DieWidth)
+			)
+			.min(0.01)
+			.step(0.2)
 		)
 		.height(ROW_HEIGHT)
 		.center_y(),
 		container(
-			NumberInput::new(wafer.die.height, max_other_dimension(wafer.die.width), |f| Message::NumberInput(Component::DieHeight, f))
-				.min(0.01)
-				.step(0.2)
+			NumberInput::new(
+				wafer.die.height,
+				max_other_dimension(wafer.die.width),
+				Message::number_input(Component::DieHeight)
+			)
+			.min(0.01)
+			.step(0.2)
 		)
 		.height(ROW_HEIGHT)
 		.center_y(),
@@ -39,7 +47,7 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 	row![
 		labels.width(Length::FillPortion(4)),
 		inputs.width(Length::FillPortion(5)),
-		checkbox("", die_square, |b| Message::Checkbox(Component::DieWidth, b)).width(Length::FillPortion(1))
+		checkbox("", die_square, Message::checkbox(Component::DieWidth)).width(Length::FillPortion(1))
 	]
 	.height(Length::Shrink)
 	.width(Length::Fill)

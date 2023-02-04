@@ -20,14 +20,14 @@ pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
 
 	let inputs = column![
 		container(
-			NumberInput::new(wafer.scribe_lanes.0, 10.0, |f| Message::NumberInput(Component::ScribeHorizontal, f))
+			NumberInput::new(wafer.scribe_lanes.0, 10.0, Message::number_input(Component::ScribeHorizontal))
 				.min(0.001)
 				.step(0.2)
 		)
 		.height(ROW_HEIGHT)
 		.center_y(),
 		container(
-			NumberInput::new(wafer.scribe_lanes.1, 10.0, |f| Message::NumberInput(Component::ScribeVertical, f))
+			NumberInput::new(wafer.scribe_lanes.1, 10.0, Message::number_input(Component::ScribeVertical))
 				.min(0.001)
 				.step(0.2)
 		)
@@ -42,7 +42,7 @@ pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
 			.width(Length::FillPortion(4)),
 		labels.width(Length::FillPortion(2)),
 		inputs.width(Length::FillPortion(3)),
-		checkbox("", equal_scribe, |b| Message::Checkbox(Component::ScribeHorizontal, b)).width(Length::FillPortion(1)),
+		checkbox("", equal_scribe, Message::checkbox(Component::ScribeHorizontal)).width(Length::FillPortion(1)),
 	]
 	.height(Length::Shrink)
 	.width(Length::Fill)

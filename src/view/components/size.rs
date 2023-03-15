@@ -11,7 +11,7 @@ use iced_aw::NumberInput;
 use crate::die::max_other_dimension;
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
-use crate::wafer::Wafer;
+use crate::wafer::{MINIMUM_DIE_DIMENSION, Wafer};
 
 pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 	let width_label = container(text("Die Width (mm)")).height(ROW_HEIGHT).center_y();
@@ -24,7 +24,7 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 			max_other_dimension(wafer.die.height),
 			Message::number_input(Component::DieWidth),
 		)
-		.min(0.01)
+		.min(MINIMUM_DIE_DIMENSION)
 		.step(0.2),
 	)
 	.height(ROW_HEIGHT)
@@ -32,10 +32,10 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 	let height_input = container(
 		NumberInput::new(
 			wafer.die.height,
-			max_other_dimension(wafer.die.width),
+			if die_square { wafer.die.height } else { max_other_dimension(wafer.die.width) },
 			Message::number_input(Component::DieHeight),
 		)
-		.min(0.01)
+		.min(if die_square { wafer.die.height } else { MINIMUM_DIE_DIMENSION })
 		.step(0.2),
 	)
 	.height(ROW_HEIGHT)

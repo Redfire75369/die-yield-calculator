@@ -1,6 +1,6 @@
 [package]
 name = "die-yield-calculator"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Redfire <redfire75369@hotmail.com>"]
 edition = "2021"
 
@@ -8,11 +8,11 @@ edition = "2021"
 rand = "0.8.5"
 
 [dependencies.iced]
-version = "0.7.0"
+version = "0.8.0"
 default-features = false
 features = ["canvas", "glow"]
 
 [dependencies.iced_aw]
-version = "0.3.0"
+version = "0.4.1"
 default-features = false
 features = ["number_input"]

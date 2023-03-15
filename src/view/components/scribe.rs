@@ -10,23 +10,26 @@ use iced_aw::NumberInput;
 
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
-use crate::wafer::Wafer;
+use crate::wafer::{MAXIMUM_SCRIBE_WIDTH, MINIMUM_SCRIBE_WIDTH, Wafer};
 
 pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
 	let horizontal_label = container(text("Horizontal")).height(ROW_HEIGHT).center_y();
 	let vertical_label = container(text("Vertical")).height(ROW_HEIGHT).center_y();
 	let labels = column![horizontal_label, vertical_label];
 
-	let horizontal_input = container(
-		NumberInput::new(wafer.scribe_lanes.0, 10.0, Message::number_input(Component::ScribeHorizontal))
-			.min(0.001)
+	let horizontal_input = container(NumberInput::new(wafer.scribe_lanes.0, MAXIMUM_SCRIBE_WIDTH, Message::number_input(Component::ScribeHorizontal))
+			.min(MINIMUM_SCRIBE_WIDTH)
 			.step(0.2),
 	)
 	.height(ROW_HEIGHT)
 	.center_y();
 	let vertical_input = container(
-		NumberInput::new(wafer.scribe_lanes.1, 10.0, Message::number_input(Component::ScribeVertical))
-			.min(0.001)
+		NumberInput::new(
+			wafer.scribe_lanes.1,
+			if equal_scribe { wafer.scribe_lanes.1 } else { MAXIMUM_SCRIBE_WIDTH },
+			Message::number_input(Component::ScribeVertical)
+		)
+			.min(if equal_scribe { wafer.scribe_lanes.1 } else { MINIMUM_SCRIBE_WIDTH })
 			.step(0.2),
 	)
 	.height(ROW_HEIGHT)

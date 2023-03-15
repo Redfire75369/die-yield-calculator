@@ -8,12 +8,12 @@ use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
 
-use crate::die::RETICLE_SHORT;
+use crate::die::{RETICLE_LONG, RETICLE_SHORT};
 use crate::view::components::{
 	critical_area, defect_rate, diameter, die_centering, die_size, edge_loss, scribe_lines, translation, yield_model,
 };
 use crate::view::wafer::WaferViewState;
-use crate::wafer::{Diameter, Wafer, YieldModel};
+use crate::wafer::{Diameter, MAXIMUM_SCRIBE_WIDTH, MINIMUM_DIE_DIMENSION, MINIMUM_SCRIBE_WIDTH, Wafer, YieldModel};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Component {
@@ -105,21 +105,33 @@ impl Sandbox for Calculator {
 			}
 			Message::NumberInput(c, mut f) => match c {
 				Component::DieWidth => {
-					if self.die_square {
+					f = f.max(MINIMUM_DIE_DIMENSION);
+					if self.die_square || self.wafer.die.height >= RETICLE_LONG {
 						f = f.min(RETICLE_SHORT);
+					}
+					if self.die_square {
 						self.wafer.die.height = f;
 					}
 					self.wafer.die.width = f;
 
 					if self.simple_critical_area {
 						self.wafer.critical_area = self.wafer.die.area();
+					} else {
+						self.wafer.fix_critical_area();
 					}
 				}
 				Component::DieHeight => {
 					if !self.die_square {
+						f = f.max(MINIMUM_DIE_DIMENSION);
+						if self.wafer.die.width >= RETICLE_LONG {
+							f = f.min(RETICLE_SHORT);
+						}
 						self.wafer.die.height = f;
+
 						if self.simple_critical_area {
 							self.wafer.critical_area = self.wafer.die.area();
+						} else {
+							self.wafer.fix_critical_area();
 						}
 					}
 				}
@@ -131,12 +143,16 @@ impl Sandbox for Calculator {
 				Component::DefectRate => self.wafer.defect_rate = f,
 				Component::EdgeLoss => self.wafer.edge_loss = f,
 				Component::ScribeHorizontal => {
+					f = f.max(MINIMUM_SCRIBE_WIDTH).min(MAXIMUM_SCRIBE_WIDTH);
 					self.wafer.scribe_lanes.0 = f;
 					if self.scribe_equal {
 						self.wafer.scribe_lanes.1 = f;
 					}
 				}
-				Component::ScribeVertical => self.wafer.scribe_lanes.1 = f,
+				Component::ScribeVertical => {
+					f = f.max(MINIMUM_SCRIBE_WIDTH).min(MAXIMUM_SCRIBE_WIDTH);
+					self.wafer.scribe_lanes.1 = f;
+				},
 				Component::TranslateHorizontal => self.wafer.translation.0 = f,
 				Component::TranslateVertical => self.wafer.translation.1 = f,
 				_ => {}

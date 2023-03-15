@@ -17,6 +17,11 @@ mod yield_model;
 
 type Grid<T> = Vec<Vec<T>>;
 
+pub const MINIMUM_SCRIBE_WIDTH: f32 = 0.001;
+pub const MAXIMUM_SCRIBE_WIDTH: f32 = 10.0;
+
+pub const MINIMUM_DIE_DIMENSION: f32 = 0.01;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Wafer {
 	pub critical_area: f32,
@@ -44,19 +49,14 @@ impl Wafer {
 		self.diameter - 2.0 * self.edge_loss
 	}
 
+	pub fn fix_critical_area(&mut self) {
+		self.critical_area = self.critical_area.min(self.die.area());
+	}
+
 	#[allow(dead_code)]
 	fn max_dies(&self) -> u32 {
 		((PI * (self.inner_diameter() / 2.0).powi(2)) / self.reticle().area() - (PI * self.inner_diameter()) / (2.0 * self.reticle().area()).sqrt())
 			as u32
-	}
-
-	pub fn yield_poisson(&self) -> f32 {
-		(-self.die.area() * (self.defect_rate / 100.0)).exp()
-	}
-
-	pub fn yield_murphy(&self) -> f32 {
-		let da = self.die.area() * (self.defect_rate / 100.0);
-		((1.0 - (-da).exp()) / (da)).powi(2)
 	}
 
 	fn die_type(&self, die_coord: &Coordinate) -> DieType {
@@ -122,7 +122,7 @@ impl Default for Wafer {
 		Wafer {
 			critical_area: Die::default().area(),
 			diameter: 300.0,
-			edge_loss: 5.0,
+			edge_loss: 3.0,
 			defect_rate: 0.10,
 			scribe_lanes: (0.2, 0.2),
 			translation: (0.0, 0.0),

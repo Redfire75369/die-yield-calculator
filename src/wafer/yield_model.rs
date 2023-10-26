@@ -8,9 +8,10 @@ use std::fmt::{Display, Formatter};
 
 use crate::wafer::Wafer;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum YieldModel {
 	Poisson,
+	#[default]
 	Murphy,
 	Rectangular,
 	Moore,
@@ -28,6 +29,9 @@ impl YieldModel {
 
 	pub fn wafer_yield(self, wafer: &Wafer) -> f32 {
 		let defects = wafer.critical_area * wafer.defect_rate / 100.0;
+		if defects == 0.0 {
+			return 1.0;
+		}
 		match self {
 			YieldModel::Poisson => (-defects).exp(),
 			YieldModel::Murphy => ((1.0 - (-defects).exp()) / (defects)).powi(2),

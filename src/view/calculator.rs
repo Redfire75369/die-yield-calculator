@@ -8,18 +8,18 @@ use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
 
-use crate::die::{max_other_dimension, RETICLE_LONG, RETICLE_SHORT};
 use crate::util::min_if;
-use crate::view::components::{critical_area, defect_rate, diameter, die_centering, die_size, edge_loss, scribe_lines, translation, yield_model};
+use crate::view::components::{critical_area, defect_rate, shape, die_centering, die_size, edge_loss, scribe_lines, translation, yield_model};
 use crate::view::wafer::WaferViewState;
-use crate::wafer::{Diameter, MAXIMUM_SCRIBE_WIDTH, MINIMUM_DIE_DIMENSION, MINIMUM_SCRIBE_WIDTH, Wafer, YieldModel};
+use crate::wafer::{Diameter, MAXIMUM_SCRIBE_WIDTH, Panel, Shape, ShapeOption, Wafer, YieldModel};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Component {
 	DieWidth,
 	DieHeight,
+	Reticle,
 	CriticalArea,
-	Diameter,
+	Shape,
 	DefectRate,
 	EdgeLoss,
 	ScribeHorizontal,
@@ -31,8 +31,8 @@ pub enum Component {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Message {
 	Center(bool),
-	Reticle(bool),
-	Diameter(Diameter),
+	ShapeOption(ShapeOption),
+	Shape(Shape),
 	Checkbox(Component, bool),
 	NumberInput(Component, f32),
 	YieldModel(YieldModel),
@@ -51,9 +51,7 @@ impl Message {
 
 pub struct Calculator {
 	wafer: Wafer,
-	diameter: Diameter,
 
-	die_square: bool,
 	reticle_limit: bool,
 	simple_critical_area: bool,
 	scribe_equal: bool,
@@ -64,13 +62,10 @@ pub struct Calculator {
 impl Sandbox for Calculator {
 	type Message = Message;
 
-	fn new() -> Self {
-		let wafer = Wafer::default();
+	fn new() -> Calculator {
 		Calculator {
-			wafer,
-			diameter: Diameter::TWELVE,
+			wafer: Wafer::default(),
 
-			die_square: false,
 			reticle_limit: true,
 			simple_critical_area: true,
 			scribe_equal: false,
@@ -86,16 +81,14 @@ impl Sandbox for Calculator {
 	fn update(&mut self, message: Message) {
 		match message {
 			Message::Center(b) => self.wafer.centered = b,
-			Message::Reticle(b) => {
-				self.reticle_limit = b;
-				self.wafer.die.width = min_if(self.reticle_limit, self.wafer.die.width, RETICLE_LONG);
-				self.wafer.die.height = min_if(self.reticle_limit, self.wafer.die.height, RETICLE_SHORT);
-			}
 			Message::Checkbox(c, b) => match c {
-				Component::DieWidth => {
-					self.die_square = b;
-					self.wafer.die.height = min_if(self.reticle_limit, self.wafer.die.width, RETICLE_SHORT);
+				Component::DieWidth if b => self.wafer.die = self.wafer.die.square(self.reticle_limit),
+				Component::DieWidth => self.wafer.die = self.wafer.die.rectangle(),
+				Component::Reticle if b => {
+					self.reticle_limit = true;
+					self.wafer.die = self.wafer.die.clamp_reticle();
 				}
+				Component::Reticle => self.reticle_limit = false,
 				Component::CriticalArea => {
 					self.simple_critical_area = b;
 				}
@@ -105,49 +98,32 @@ impl Sandbox for Calculator {
 				}
 				_ => {}
 			},
-			Message::Diameter(d) => {
-				self.wafer.diameter = d as u16 as f32;
-				self.diameter = d;
+			Message::Shape(shape) => {
+				self.wafer.shape = shape;
+			}
+			Message::ShapeOption(opt) => {
+				self.wafer.shape = match opt {
+					ShapeOption::Wafer => Shape::Wafer(Diameter::default()),
+					ShapeOption::Panel => Shape::Panel(Panel::default()),
+				};
 			}
 			Message::NumberInput(c, mut f) => match c {
-				Component::DieWidth => {
-					f = f.max(MINIMUM_DIE_DIMENSION);
-					f = f.min(max_other_dimension(
-						self.reticle_limit,
-						self.die_square,
-						self.wafer.diameter,
-						self.wafer.die.height,
-					));
-					if self.die_square {
-						self.wafer.die.height = f;
-					}
-					self.wafer.die.width = f;
-				}
-				Component::DieHeight => {
-					if !self.die_square {
-						f = f.max(MINIMUM_DIE_DIMENSION);
-						self.wafer.die.height = f.min(max_other_dimension(
-							self.reticle_limit,
-							self.die_square,
-							self.wafer.diameter,
-							self.wafer.die.width,
-						));
-					}
-				}
+				Component::DieWidth => self.wafer.die = self.wafer.die.new_width(f),
+				Component::DieHeight => self.wafer.die = self.wafer.die.new_height(f),
 				Component::CriticalArea => {
 					self.wafer.critical_area = min_if(!self.simple_critical_area, f, self.wafer.die.area());
 				}
 				Component::DefectRate => self.wafer.defect_rate = f,
 				Component::EdgeLoss => self.wafer.edge_loss = f,
 				Component::ScribeHorizontal => {
-					f = f.max(MINIMUM_SCRIBE_WIDTH).min(MAXIMUM_SCRIBE_WIDTH);
+					f = f.min(MAXIMUM_SCRIBE_WIDTH);
 					self.wafer.scribe_lanes.0 = f;
 					if self.scribe_equal {
 						self.wafer.scribe_lanes.1 = f;
 					}
 				}
 				Component::ScribeVertical => {
-					f = f.max(MINIMUM_SCRIBE_WIDTH).min(MAXIMUM_SCRIBE_WIDTH);
+					f = f.min(MAXIMUM_SCRIBE_WIDTH);
 					self.wafer.scribe_lanes.1 = f;
 				}
 				Component::TranslateHorizontal => self.wafer.translation.0 = f,
@@ -161,16 +137,16 @@ impl Sandbox for Calculator {
 		if self.simple_critical_area {
 			self.wafer.critical_area = self.wafer.die.area();
 		} else {
-			self.wafer.fix_critical_area();
+			self.wafer.clamp_critical_area();
 		}
 
 		self.wafer_view.request_redraw();
 	}
 
 	fn view(&self) -> Element<'_, Message> {
-		let die_size_inputs = die_size(&self.wafer, self.die_square, self.reticle_limit);
+		let die_size_inputs = die_size(&self.wafer, self.reticle_limit);
 		let critical_area_inputs = critical_area(&self.wafer, self.simple_critical_area);
-		let diameter_input = diameter(self.diameter);
+		let shape_input = shape(self.wafer.shape);
 		let defect_rate_input = defect_rate(self.wafer.defect_rate);
 		let edge_loss_input = edge_loss(self.wafer.edge_loss);
 		let scribe_lanes_inputs = scribe_lines(&self.wafer, self.scribe_equal);
@@ -181,7 +157,7 @@ impl Sandbox for Calculator {
 		let options = column![
 			die_size_inputs,
 			critical_area_inputs,
-			diameter_input,
+			shape_input,
 			defect_rate_input,
 			edge_loss_input,
 			scribe_lanes_inputs,

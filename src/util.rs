@@ -13,12 +13,16 @@ pub struct Coordinate {
 }
 
 impl Coordinate {
-	pub fn distance_sq(&self, coord: &Coordinate) -> f32 {
+	pub fn distance(&self, coord: &Coordinate) -> f32 {
 		(coord.x - self.x).powi(2) + (coord.y - self.y).powi(2)
 	}
 
 	pub fn within_radius(&self, center: &Coordinate, radius: f32) -> bool {
-		center.distance_sq(self) <= radius.powi(2)
+		center.distance(self) <= radius.powi(2)
+	}
+
+	pub fn within_rectangle(&self, rectangle: &Rectangle) -> bool {
+		(rectangle.bl.x..=rectangle.br.x).contains(&self.x) && (rectangle.bl.y..=rectangle.tl.y).contains(&self.y)
 	}
 }
 
@@ -43,18 +47,25 @@ impl Rectangle {
 		}
 	}
 
-	pub fn within_radius(&self, center: &Coordinate, radius: f32) -> (bool, bool, bool, bool) {
-		(
-			self.bl.within_radius(center, radius),
-			self.br.within_radius(center, radius),
-			self.tl.within_radius(center, radius),
-			self.tr.within_radius(center, radius),
-		)
+	pub fn within_radius(&self, center: &Coordinate, radius: f32) -> (bool, bool) {
+		let bl = self.bl.within_radius(center, radius);
+		let br = self.br.within_radius(center, radius);
+		let tl = self.tl.within_radius(center, radius);
+		let tr = self.tr.within_radius(center, radius);
+		(bl && br && tl && tr, bl || br || tl || tr)
+	}
+
+	pub fn within_rectangle(&self, other: &Rectangle) -> (bool, bool) {
+		let bl = self.bl.within_rectangle(other);
+		let br = self.br.within_rectangle(other);
+		let tl = self.tl.within_rectangle(other);
+		let tr = self.tr.within_rectangle(other);
+		(bl && br && tl && tr, bl || br || tl || tr)
 	}
 }
 
-pub fn random(min: u16, max: u16) -> u16 {
-	rand::thread_rng().gen_range(min..(max + 1))
+pub fn random(min: usize, max: usize) -> usize {
+	rand::thread_rng().gen_range(min..=max)
 }
 
 pub fn min_if(cond: bool, a: f32, b: f32) -> f32 {

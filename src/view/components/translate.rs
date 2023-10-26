@@ -20,7 +20,7 @@ pub fn translation(wafer: &Wafer) -> Row<Message> {
 	let horizontal_input = container(
 		NumberInput::new(
 			wafer.translation.0,
-			wafer.die.width,
+			wafer.die.width(),
 			Message::number_input(Component::TranslateHorizontal),
 		)
 		.min(0.0)
@@ -29,9 +29,13 @@ pub fn translation(wafer: &Wafer) -> Row<Message> {
 	.height(ROW_HEIGHT)
 	.center_y();
 	let vertical_input = container(
-		NumberInput::new(wafer.translation.1, wafer.die.height, Message::number_input(Component::TranslateVertical))
-			.min(0.0)
-			.step(0.2),
+		NumberInput::new(
+			wafer.translation.1,
+			wafer.die.height(),
+			Message::number_input(Component::TranslateVertical),
+		)
+		.min(0.0)
+		.step(0.2),
 	)
 	.height(ROW_HEIGHT)
 	.center_y();

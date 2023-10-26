@@ -10,7 +10,7 @@ use iced_aw::NumberInput;
 
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
-use crate::wafer::{Diameter, Wafer, YieldModel};
+use crate::wafer::{Diameter, Panel, Shape, ShapeOption, Wafer, YieldModel};
 
 pub fn critical_area(wafer: &Wafer, simple: bool) -> Row<'static, Message> {
 	let label = container(text("Critical Area (mm²)")).height(ROW_HEIGHT).center_y();
@@ -33,16 +33,21 @@ pub fn critical_area(wafer: &Wafer, simple: bool) -> Row<'static, Message> {
 	.align_items(Alignment::Center)
 }
 
-pub fn diameter(diameter: Diameter) -> Row<'static, Message> {
-	let label = container(text("Wafer Diameter")).height(ROW_HEIGHT).center_y();
-	let picker = container(pick_list(Diameter::ALL, Some(diameter), Message::Diameter))
+pub fn shape(shape: Shape) -> Row<'static, Message> {
+	let label = container(text("Shape")).height(ROW_HEIGHT).center_y();
+	let options = container(pick_list(ShapeOption::ALL, Some(shape.into()), Message::ShapeOption))
 		.height(ROW_HEIGHT)
 		.center_y();
+	let picker = match shape {
+		Shape::Wafer(diameter) => container(pick_list(Diameter::ALL, Some(diameter), |d| Message::Shape(Shape::Wafer(d)))),
+		Shape::Panel(panel) => container(pick_list(Panel::ALL, Some(panel), |p| Message::Shape(Shape::Panel(p)))),
+	};
+	let picker = picker.height(ROW_HEIGHT).center_y();
 
 	row![
 		label.width(Length::FillPortion(4)),
-		picker.width(Length::FillPortion(5)),
-		horizontal_space(Length::FillPortion(1))
+		options.width(Length::FillPortion(3)),
+		picker.width(Length::FillPortion(3)),
 	]
 	.height(Length::Shrink)
 	.width(Length::Fill)

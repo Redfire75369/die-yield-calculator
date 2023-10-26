@@ -4,16 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{Alignment, Length};
-use iced::widget::{checkbox, column, container, Row, row, text};
-use iced_aw::NumberInput;
-use crate::die::Die;
+use iced::widget::{checkbox, column, container, text};
+use iced_aw::{grid_row, GridRow, NumberInput};
 
+use crate::die::Die;
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
 use crate::wafer::Wafer;
 
-pub fn die_size(wafer: &Wafer, reticle_limit: bool) -> Row<Message> {
+pub fn die_size(wafer: &Wafer, reticle_limit: bool) -> GridRow<'static, Message> {
 	let width_label = container(text("Die Width (mm)")).height(ROW_HEIGHT).center_y();
 	let height_label = container(text("Die Height (mm)")).height(ROW_HEIGHT).center_y();
 	let labels = column![width_label, height_label];
@@ -39,13 +38,5 @@ pub fn die_size(wafer: &Wafer, reticle_limit: bool) -> Row<Message> {
 	let square = checkbox("Square", matches!(wafer.die, Die::Square(_)), Message::checkbox(Component::DieWidth));
 	let reticle = checkbox("Reticle Limit", reticle_limit, Message::checkbox(Component::Reticle));
 
-	row![
-		labels.width(Length::FillPortion(4)),
-		inputs.width(Length::FillPortion(2)),
-		square.width(Length::FillPortion(2)),
-		reticle.width(Length::FillPortion(2)),
-	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+	grid_row![labels, inputs, square, reticle]
 }

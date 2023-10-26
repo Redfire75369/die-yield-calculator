@@ -13,6 +13,6 @@ default-features = false
 features = ["canvas"]
 
 [dependencies.iced_aw]
-version = "0.7.0"
+git = "https://github.com/iced-rs/iced_aw"
 default-features = false
-features = ["number_input"]
+features = ["grid", "number_input"]

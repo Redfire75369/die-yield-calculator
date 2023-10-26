@@ -4,15 +4,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{Alignment, Length};
-use iced::widget::{checkbox, column, container, Row, row, text};
-use iced_aw::NumberInput;
+use iced::widget::{checkbox, column, container, text};
+use iced_aw::{grid_row, GridRow, NumberInput};
 
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
 use crate::wafer::{MAXIMUM_SCRIBE_WIDTH, Wafer};
 
-pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
+pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> GridRow<'static, Message> {
 	let horizontal_label = container(text("Horizontal")).height(ROW_HEIGHT).center_y();
 	let vertical_label = container(text("Vertical")).height(ROW_HEIGHT).center_y();
 	let labels = column![horizontal_label, vertical_label];
@@ -25,8 +24,8 @@ pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
 		)
 		.step(0.2),
 	)
-	.height(ROW_HEIGHT)
 	.center_y();
+
 	let vertical_input = container(
 		NumberInput::new(
 			wafer.scribe_lanes.1,
@@ -36,20 +35,14 @@ pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> Row<Message> {
 		.min(if equal_scribe { wafer.scribe_lanes.1 } else { 0.0 })
 		.step(0.2),
 	)
-	.height(ROW_HEIGHT)
 	.center_y();
+
 	let inputs = column![horizontal_input, vertical_input];
 
-	row![
-		container(text("Scribe Lines (mm)"))
-			.height(ROW_HEIGHT)
-			.center_y()
-			.width(Length::FillPortion(4)),
-		labels.width(Length::FillPortion(2)),
-		inputs.width(Length::FillPortion(3)),
-		checkbox("", equal_scribe, Message::checkbox(Component::ScribeHorizontal)).width(Length::FillPortion(1)),
+	grid_row![
+		container(text("Scribe Lines (mm)")).center_y(),
+		labels,
+		inputs,
+		checkbox("", equal_scribe, Message::checkbox(Component::ScribeHorizontal)),
 	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
 }

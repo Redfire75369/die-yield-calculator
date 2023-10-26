@@ -7,6 +7,7 @@
 use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
+use iced_aw::grid;
 
 use crate::util::min_if;
 use crate::view::components::{critical_area, defect_rate, shape, die_centering, die_size, edge_loss, scribe_lines, translation, yield_model};
@@ -154,7 +155,7 @@ impl Sandbox for Calculator {
 		let centering_input = die_centering(self.wafer.centered);
 		let yield_model_input = yield_model(self.wafer.yield_model);
 
-		let options = column![
+		let options = grid![
 			die_size_inputs,
 			critical_area_inputs,
 			shape_input,
@@ -165,10 +166,8 @@ impl Sandbox for Calculator {
 			centering_input,
 			yield_model_input,
 		]
-		.spacing(16)
-		.padding(8)
-		.width(Length::FillPortion(3))
-		.align_items(Alignment::Start);
+		.spacing(4.0)
+		.width(Length::FillPortion(3));
 
 		let wafer_view = container(self.wafer_view.view(&self.wafer))
 			.width(Length::Fill)
@@ -176,9 +175,9 @@ impl Sandbox for Calculator {
 			.center_x()
 			.center_y();
 
-		let wafer_view_column = column![wafer_view.height(Length::FillPortion(4))]
+		let wafer_view_column = column![wafer_view]
 			.height(Length::Shrink)
-			.width(Length::FillPortion(3))
+			.width(Length::FillPortion(2))
 			.align_items(Alignment::Center);
 
 		let content = row![options, wafer_view_column]

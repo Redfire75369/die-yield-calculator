@@ -4,15 +4,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{Alignment, Length};
-use iced::widget::{checkbox, container, horizontal_space, pick_list, row, Row, text};
-use iced_aw::NumberInput;
+use iced::widget::{checkbox, container, pick_list, text};
+use iced_aw::{grid_row, GridRow, NumberInput};
 
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
 use crate::wafer::{Diameter, Panel, Shape, ShapeOption, Wafer, YieldModel};
 
-pub fn critical_area(wafer: &Wafer, simple: bool) -> Row<'static, Message> {
+pub fn critical_area(wafer: &Wafer, simple: bool) -> GridRow<'static, Message> {
 	let label = container(text("Critical Area (mm²)")).height(ROW_HEIGHT).center_y();
 	let input = container(
 		NumberInput::new(wafer.critical_area, wafer.die.area(), Message::number_input(Component::CriticalArea))
@@ -23,17 +22,10 @@ pub fn critical_area(wafer: &Wafer, simple: bool) -> Row<'static, Message> {
 	.center_y();
 	let check = checkbox("Simple", simple, Message::checkbox(Component::CriticalArea));
 
-	row![
-		label.width(Length::FillPortion(4)),
-		input.width(Length::FillPortion(2)),
-		check.width(Length::FillPortion(4)),
-	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+	grid_row![label, input, check]
 }
 
-pub fn shape(shape: Shape) -> Row<'static, Message> {
+pub fn shape(shape: Shape) -> GridRow<'static, Message> {
 	let label = container(text("Shape")).height(ROW_HEIGHT).center_y();
 	let options = container(pick_list(ShapeOption::ALL, Some(shape.into()), Message::ShapeOption))
 		.height(ROW_HEIGHT)
@@ -44,17 +36,10 @@ pub fn shape(shape: Shape) -> Row<'static, Message> {
 	};
 	let picker = picker.height(ROW_HEIGHT).center_y();
 
-	row![
-		label.width(Length::FillPortion(4)),
-		options.width(Length::FillPortion(3)),
-		picker.width(Length::FillPortion(3)),
-	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+	grid_row![label, options, picker]
 }
 
-pub fn defect_rate(defect_rate: f32) -> Row<'static, Message> {
+pub fn defect_rate(defect_rate: f32) -> GridRow<'static, Message> {
 	let label = container(text("Defect Rate (#/cm²)")).height(ROW_HEIGHT).center_y();
 	let input = container(
 		NumberInput::new(defect_rate, 10000.0, Message::number_input(Component::DefectRate))
@@ -64,17 +49,10 @@ pub fn defect_rate(defect_rate: f32) -> Row<'static, Message> {
 	.height(ROW_HEIGHT)
 	.center_y();
 
-	row![
-		label.width(Length::FillPortion(4)),
-		input.width(Length::FillPortion(5)),
-		horizontal_space(Length::FillPortion(1))
-	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+	grid_row![label, input]
 }
 
-pub fn edge_loss(edge_loss: f32) -> Row<'static, Message> {
+pub fn edge_loss(edge_loss: f32) -> GridRow<'static, Message> {
 	let label = container(text("Edge Loss (mm)")).height(ROW_HEIGHT).center_y();
 	let input = container(
 		NumberInput::new(edge_loss, 25.0, Message::number_input(Component::EdgeLoss))
@@ -84,42 +62,21 @@ pub fn edge_loss(edge_loss: f32) -> Row<'static, Message> {
 	.height(ROW_HEIGHT)
 	.center_y();
 
-	row![
-		label.width(Length::FillPortion(4)),
-		input.width(Length::FillPortion(5)),
-		horizontal_space(Length::FillPortion(1))
-	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+	grid_row![label, input]
 }
 
-pub fn die_centering(centered: bool) -> Row<'static, Message> {
+pub fn die_centering(centered: bool) -> GridRow<'static, Message> {
 	let label = container(text("Centering")).height(ROW_HEIGHT).center_y();
 	let checkbox = container(checkbox("", centered, Message::Center));
 
-	row![
-		label.width(Length::FillPortion(4)),
-		checkbox.width(Length::FillPortion(5)),
-		horizontal_space(Length::FillPortion(1))
-	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+	grid_row![label, checkbox]
 }
 
-pub fn yield_model(yield_model: YieldModel) -> Row<'static, Message> {
+pub fn yield_model(yield_model: YieldModel) -> GridRow<'static, Message> {
 	let label = container(text("Yield Model")).height(ROW_HEIGHT).center_y();
 	let picker = container(pick_list(YieldModel::ALL, Some(yield_model), Message::YieldModel))
 		.height(ROW_HEIGHT)
 		.center_y();
 
-	row![
-		label.width(Length::FillPortion(4)),
-		picker.width(Length::FillPortion(5)),
-		horizontal_space(Length::FillPortion(1))
-	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
+	grid_row![label, picker]
 }

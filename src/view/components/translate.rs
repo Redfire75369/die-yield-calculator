@@ -4,15 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{Alignment, Length};
-use iced::widget::{column, container, Row, row, text};
-use iced_aw::NumberInput;
+use iced::Length;
+use iced::widget::{column, container, text};
+use iced_aw::{grid_row, GridRow, NumberInput};
 
 use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
 use crate::wafer::Wafer;
 
-pub fn translation(wafer: &Wafer) -> Row<Message> {
+pub fn translation(wafer: &Wafer) -> GridRow<'static, Message> {
 	let horizontal_label = container(text("Horizontal")).height(ROW_HEIGHT).center_y();
 	let vertical_label = container(text("Vertical")).height(ROW_HEIGHT).center_y();
 	let labels = column![horizontal_label, vertical_label];
@@ -41,7 +41,7 @@ pub fn translation(wafer: &Wafer) -> Row<Message> {
 	.center_y();
 	let inputs = column![horizontal_input, vertical_input];
 
-	row![
+	grid_row![
 		container(text("Translation (mm)"))
 			.height(ROW_HEIGHT)
 			.center_y()
@@ -49,7 +49,4 @@ pub fn translation(wafer: &Wafer) -> Row<Message> {
 		labels.width(Length::FillPortion(2)),
 		inputs.width(Length::FillPortion(4)),
 	]
-	.height(Length::Shrink)
-	.width(Length::Fill)
-	.align_items(Alignment::Center)
 }

@@ -83,16 +83,16 @@ impl Wafer {
 	}
 
 	pub fn get_dies(&self) -> Grid<(DieType, Coordinate)> {
-		let horizontal: u32 = (self.diameter / self.reticle().width).round() as u32;
-		let vertical: u32 = (self.diameter / self.reticle().height).round() as u32;
+		let horizontal: u32 = (self.diameter / self.reticle().width).floor() as u32;
+		let vertical: u32 = (self.diameter / self.reticle().height).floor() as u32;
 
 		let horizontal_even = horizontal % 2 == 0;
 		let vertical_even = vertical % 2 == 0;
 		let reticle = self.reticle();
 
-		(0..horizontal)
+		(0..=horizontal)
 			.map(|x| {
-				(0..vertical)
+				(0..=vertical)
 					.map(|y| {
 						let x_offset = if self.centered == horizontal_even {
 							0.5 * self.scribe_lanes.0

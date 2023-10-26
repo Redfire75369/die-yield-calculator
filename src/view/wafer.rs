@@ -5,9 +5,11 @@
  */
 
 use std::collections::HashSet;
-use iced::{Color, Length, Rectangle, Size, Theme, Vector};
+
+use iced::{Color, Length, Rectangle, Renderer, Size, Theme, Vector};
+use iced::mouse::Cursor;
 use iced::widget::Canvas;
-use iced::widget::canvas::{Cache, Cursor, Geometry, Path, Program, Stroke, Text};
+use iced::widget::canvas::{Cache, Geometry, Path, Program, Stroke, Text};
 
 use crate::die::DieType;
 use crate::util::random;
@@ -24,7 +26,7 @@ impl WaferViewState {
 		self.cache.clear()
 	}
 
-	pub fn view<'a>(&'a self, wafer: &'a Wafer) -> Canvas<Message, Theme, WaferView<'a>> {
+	pub fn view<'a>(&'a self, wafer: &'a Wafer) -> Canvas<WaferView<'a>, Message> {
 		Canvas::new(WaferView { state: self, wafer }).width(Length::Fill).height(Length::Fill)
 	}
 }
@@ -37,8 +39,8 @@ pub struct WaferView<'a> {
 impl<'a> Program<Message> for WaferView<'a> {
 	type State = ();
 
-	fn draw(&self, _state: &(), _theme: &Theme, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
-		let wafer = self.state.cache.draw(bounds.size(), |frame| {
+	fn draw(&self, _state: &(), renderer: &Renderer, _theme: &Theme, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+		let wafer = self.state.cache.draw(renderer, bounds.size(), |frame| {
 			let center = frame.center();
 			let dimension = frame.width().min(frame.height()) * 0.8;
 			let scale = dimension / self.wafer.diameter;
@@ -68,7 +70,7 @@ impl<'a> Program<Message> for WaferView<'a> {
 				Stroke::default().with_color(Color::from_rgb8(0, 200, 0)).with_width(1.5),
 			);
 
-			let mut die_types = (0, 0, 0); // Complete, Partial, Wasted, None
+			let mut die_types = (0, 0, 0); // Complete, Partial, Wasted
 
 			let die_size = Size::new(self.wafer.die.width * scale, self.wafer.die.height * scale);
 			let die_grid = self.wafer.get_dies();
@@ -95,7 +97,7 @@ impl<'a> Program<Message> for WaferView<'a> {
 			}
 
 			let die_yield = self.wafer.yield_model.wafer_yield(&self.wafer);
-			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)) as usize;
+			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)).round() as usize;
 			let mut bad = HashSet::with_capacity(bad_dies);
 
 			while bad.len() < bad_dies {

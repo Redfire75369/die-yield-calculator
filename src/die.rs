@@ -37,10 +37,6 @@ pub struct Die {
 }
 
 impl Die {
-	pub fn average_dimension(&self) -> f32 {
-		self.area().sqrt()
-	}
-
 	pub fn area(&self) -> f32 {
 		self.width * self.height
 	}

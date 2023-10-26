@@ -25,8 +25,8 @@ pub fn critical_area(wafer: &Wafer, simple: bool) -> Row<'static, Message> {
 
 	row![
 		label.width(Length::FillPortion(4)),
-		input.width(Length::FillPortion(3)),
-		check.width(Length::FillPortion(3)),
+		input.width(Length::FillPortion(2)),
+		check.width(Length::FillPortion(4)),
 	]
 	.height(Length::Shrink)
 	.width(Length::Fill)

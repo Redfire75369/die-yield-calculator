@@ -7,7 +7,14 @@
 pub const RETICLE_LONG: f32 = 33.0;
 pub const RETICLE_SHORT: f32 = 26.0;
 
-pub fn max_other_dimension(dimension: f32) -> f32 {
+pub fn max_other_dimension(reticle_limit: bool, die_square: bool, diameter: f32, dimension: f32) -> f32 {
+	if !reticle_limit {
+		return diameter;
+	}
+	if die_square {
+		return RETICLE_SHORT;
+	}
+
 	if dimension > RETICLE_SHORT {
 		RETICLE_SHORT
 	} else {
@@ -31,7 +38,7 @@ pub struct Die {
 
 impl Die {
 	pub fn average_dimension(&self) -> f32 {
-		f32::sqrt(self.area())
+		self.area().sqrt()
 	}
 
 	pub fn area(&self) -> f32 {

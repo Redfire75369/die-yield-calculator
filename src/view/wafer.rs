@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+use std::collections::HashSet;
 use iced::{Color, Length, Rectangle, Size, Theme, Vector};
 use iced::widget::Canvas;
 use iced::widget::canvas::{Cache, Cursor, Geometry, Path, Program, Stroke, Text};
@@ -88,22 +89,21 @@ impl<'a> Program<Message> for WaferView<'a> {
 							frame.fill_rectangle(tl, die_size, Color::from_rgba8(180, 60, 60, 0.8));
 							die_types.2 += 1;
 						}
-						DieType::None => {},
+						DieType::None => {}
 					}
 				}
 			}
 
 			let die_yield = self.wafer.yield_model.wafer_yield(&self.wafer);
-			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)) as u32;
+			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)) as usize;
+			let mut bad = HashSet::with_capacity(bad_dies);
 
-			let mut i = 0;
-
-			while i < bad_dies {
+			while bad.len() < bad_dies {
 				let x = random(0, (die_grid.len() - 1) as u16) as usize;
 				let y = random(0, (die_grid[0].len() - 1) as u16) as usize;
 
 				let (die_type, die_coord) = die_grid[x][y];
-				if die_type == DieType::Complete {
+				if die_type == DieType::Complete && !bad.contains(&(x, y)) {
 					let tl = top_left + Vector::new(die_coord.x, die_coord.y) * scale;
 					let center = Rectangle::new(tl, die_size).center();
 					frame.fill_rectangle(tl, die_size, Color::from_rgb8(70, 70, 70));
@@ -111,7 +111,8 @@ impl<'a> Program<Message> for WaferView<'a> {
 						&Path::circle(center, self.wafer.die.width.min(self.wafer.die.height) * scale / 5.0),
 						Color::from_rgb8(180, 180, 180),
 					);
-					i += 1;
+
+					bad.insert((x, y));
 				}
 			}
 

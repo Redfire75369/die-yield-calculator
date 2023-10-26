@@ -13,7 +13,7 @@ use crate::view::calculator::{Component, Message};
 use crate::view::ROW_HEIGHT;
 use crate::wafer::{MINIMUM_DIE_DIMENSION, Wafer};
 
-pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
+pub fn die_size(wafer: &Wafer, die_square: bool, reticle_limit: bool) -> Row<Message> {
 	let width_label = container(text("Die Width (mm)")).height(ROW_HEIGHT).center_y();
 	let height_label = container(text("Die Height (mm)")).height(ROW_HEIGHT).center_y();
 	let labels = column![width_label, height_label];
@@ -21,7 +21,7 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 	let width_input = container(
 		NumberInput::new(
 			wafer.die.width,
-			max_other_dimension(wafer.die.height),
+			max_other_dimension(reticle_limit, die_square, wafer.diameter, wafer.die.height),
 			Message::number_input(Component::DieWidth),
 		)
 		.min(MINIMUM_DIE_DIMENSION)
@@ -32,7 +32,11 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 	let height_input = container(
 		NumberInput::new(
 			wafer.die.height,
-			if die_square { wafer.die.height } else { max_other_dimension(wafer.die.width) },
+			if die_square {
+				wafer.die.height
+			} else {
+				max_other_dimension(reticle_limit, die_square, wafer.diameter, wafer.die.width)
+			},
 			Message::number_input(Component::DieHeight),
 		)
 		.min(if die_square { wafer.die.height } else { MINIMUM_DIE_DIMENSION })
@@ -45,8 +49,9 @@ pub fn die_size(wafer: &Wafer, die_square: bool) -> Row<Message> {
 
 	row![
 		labels.width(Length::FillPortion(4)),
-		inputs.width(Length::FillPortion(5)),
-		checkbox("", die_square, Message::checkbox(Component::DieWidth)).width(Length::FillPortion(1))
+		inputs.width(Length::FillPortion(2)),
+		checkbox("Square", die_square, Message::checkbox(Component::DieWidth)).width(Length::FillPortion(2)),
+		checkbox("Reticle Limit", reticle_limit, Message::Reticle).width(Length::FillPortion(2)),
 	]
 	.height(Length::Shrink)
 	.width(Length::Fill)

@@ -56,3 +56,11 @@ impl Rectangle {
 pub fn random(min: u16, max: u16) -> u16 {
 	rand::thread_rng().gen_range(min..(max + 1))
 }
+
+pub fn min_if(cond: bool, a: f32, b: f32) -> f32 {
+	if cond {
+		a.min(b)
+	} else {
+		a
+	}
+}

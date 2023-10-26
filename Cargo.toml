@@ -1,6 +1,6 @@
 [package]
 name = "die-yield-calculator"
-version = "0.2.3"
+version = "0.3.0"
 authors = ["Redfire <redfire75369@hotmail.com>"]
 edition = "2021"
 

@@ -4,13 +4,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use iced::{Alignment, Color, Element, Length, Sandbox, Theme};
+use iced::{Alignment, Application, Color, Command, Element, font, Length, Theme};
+use iced::executor::Default as Executor;
+use iced::font::Error;
 use iced::theme::Palette;
 use iced::widget::{column, container, row};
+use iced_aw::graphics::icons::ICON_FONT_BYTES;
 use iced_aw::grid;
 
 use crate::util::min_if;
-use crate::view::components::{critical_area, defect_rate, shape, die_centering, die_size, edge_loss, scribe_lines, translation, yield_model};
+use crate::view::components::{
+	critical_area, defect_rate, die_centering, die_size, edge_loss, scribe_lines, shape, translation, yield_model,
+};
 use crate::view::wafer::WaferViewState;
 use crate::wafer::{Diameter, MAXIMUM_SCRIBE_WIDTH, Panel, Shape, ShapeOption, Wafer, YieldModel};
 
@@ -37,6 +42,7 @@ pub enum Message {
 	Checkbox(Component, bool),
 	NumberInput(Component, f32),
 	YieldModel(YieldModel),
+	FontLoaded(Result<(), Error>),
 	None,
 }
 
@@ -60,10 +66,8 @@ pub struct Calculator {
 	wafer_view: WaferViewState,
 }
 
-impl Sandbox for Calculator {
-	type Message = Message;
-
-	fn new() -> Calculator {
+impl Default for Calculator {
+	fn default() -> Calculator {
 		Calculator {
 			wafer: Wafer::default(),
 
@@ -74,12 +78,26 @@ impl Sandbox for Calculator {
 			wafer_view: WaferViewState::default(),
 		}
 	}
+}
+
+impl Application for Calculator {
+	type Executor = Executor;
+	type Message = Message;
+	type Theme = Theme;
+	type Flags = ();
+
+	fn new(_: ()) -> (Calculator, Command<Message>) {
+		(
+			Calculator::default(),
+			font::load(ICON_FONT_BYTES).map(Message::FontLoaded),
+		)
+	}
 
 	fn title(&self) -> String {
 		String::from("Die Yield Calculator")
 	}
 
-	fn update(&mut self, message: Message) {
+	fn update(&mut self, message: Message) -> Command<Message> {
 		match message {
 			Message::Center(b) => self.wafer.centered = b,
 			Message::Checkbox(c, b) => match c {
@@ -132,7 +150,7 @@ impl Sandbox for Calculator {
 				_ => {}
 			},
 			Message::YieldModel(m) => self.wafer.yield_model = m,
-			Message::None => {}
+			_ => {}
 		}
 
 		if self.simple_critical_area {
@@ -142,6 +160,7 @@ impl Sandbox for Calculator {
 		}
 
 		self.wafer_view.request_redraw();
+		Command::none()
 	}
 
 	fn view(&self) -> Element<'_, Message> {
@@ -166,32 +185,24 @@ impl Sandbox for Calculator {
 			centering_input,
 			yield_model_input,
 		]
-		.spacing(4.0)
-		.width(Length::FillPortion(3));
+		.column_spacing(16.0)
+		.row_spacing(1.0);
 
 		let wafer_view = container(self.wafer_view.view(&self.wafer))
+			.height(Length::Fill)
 			.width(Length::Fill)
 			.padding(4)
 			.center_x()
 			.center_y();
 
-		let wafer_view_column = column![wafer_view]
-			.height(Length::Shrink)
-			.width(Length::FillPortion(2))
-			.align_items(Alignment::Center);
+		let wafer_view_column = column![wafer_view].align_items(Alignment::Center);
 
 		let content = row![options, wafer_view_column]
-			.spacing(0)
-			.padding(12)
-			.height(Length::Shrink)
+			.spacing(4)
+			.padding(16)
 			.align_items(Alignment::Center);
 
-		container(content)
-			.height(Length::Shrink)
-			.width(Length::Shrink)
-			.center_x()
-			.center_y()
-			.into()
+		container(content).center_x().center_y().into()
 	}
 
 	fn theme(&self) -> Theme {

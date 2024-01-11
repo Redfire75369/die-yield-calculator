@@ -29,7 +29,11 @@ pub fn scribe_lines(wafer: &Wafer, equal_scribe: bool) -> GridRow<'static, Messa
 	let vertical_input = container(
 		NumberInput::new(
 			wafer.scribe_lanes.1,
-			if equal_scribe { wafer.scribe_lanes.1 } else { MAXIMUM_SCRIBE_WIDTH },
+			if equal_scribe {
+				wafer.scribe_lanes.1
+			} else {
+				MAXIMUM_SCRIBE_WIDTH
+			},
 			Message::number_input(Component::ScribeVertical),
 		)
 		.min(if equal_scribe { wafer.scribe_lanes.1 } else { 0.0 })

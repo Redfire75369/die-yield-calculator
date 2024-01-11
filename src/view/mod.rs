@@ -12,4 +12,4 @@ mod calculator;
 pub mod components;
 mod wafer;
 
-const ROW_HEIGHT: Length = Length::Fixed(42.0);
+const ROW_HEIGHT: Length = Length::Fixed(48.0);

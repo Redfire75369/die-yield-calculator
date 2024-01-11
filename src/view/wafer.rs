@@ -27,7 +27,9 @@ impl WaferViewState {
 	}
 
 	pub fn view<'a>(&'a self, wafer: &'a Wafer) -> Canvas<WaferView<'a>, Message> {
-		Canvas::new(WaferView { state: self, wafer }).width(Length::Fill).height(Length::Fill)
+		Canvas::new(WaferView { state: self, wafer })
+			.width(Length::Fill)
+			.height(Length::Fill)
 	}
 }
 
@@ -39,15 +41,21 @@ pub struct WaferView<'a> {
 impl<'a> Program<Message> for WaferView<'a> {
 	type State = ();
 
-	fn draw(&self, _state: &(), renderer: &Renderer, _theme: &Theme, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+	fn draw(
+		&self, _state: &(), renderer: &Renderer, _theme: &Theme, bounds: Rectangle, _cursor: Cursor,
+	) -> Vec<Geometry> {
 		let wafer = self.state.cache.draw(renderer, bounds.size(), |frame| {
 			let dimension = frame.width().min(frame.height()) * 0.8;
 			let center = frame.center() - Vector::new(0.0, dimension * 0.05);
 			let top_left = center - Vector::new(dimension / 2.0, dimension / 2.0);
 			let mut frame_top_left = top_left;
 
-			let outer_stroke = Stroke::default().with_color(Color::from_rgb8(0, 200, 0)).with_width(1.5);
-			let inner_stroke = Stroke::default().with_color(Color::from_rgb8(200, 0, 0)).with_width(1.5);
+			let outer_stroke = Stroke::default()
+				.with_color(Color::from_rgb8(0, 200, 0))
+				.with_width(1.5);
+			let inner_stroke = Stroke::default()
+				.with_color(Color::from_rgb8(200, 0, 0))
+				.with_width(1.5);
 
 			frame.stroke(
 				&Path::rectangle(
@@ -72,7 +80,10 @@ impl<'a> Program<Message> for WaferView<'a> {
 					let scale = dimension / diameter;
 
 					frame.stroke(&Path::circle(center, dimension / 2.0), outer_stroke);
-					frame.stroke(&Path::circle(center, (dimension / 2.0) * (inner_diameter / diameter)), inner_stroke);
+					frame.stroke(
+						&Path::circle(center, (dimension / 2.0) * (inner_diameter / diameter)),
+						inner_stroke,
+					);
 
 					scale
 				}
@@ -83,7 +94,10 @@ impl<'a> Program<Message> for WaferView<'a> {
 
 					frame_top_left = center - Vector::new(width, height) * (scale / 2.0);
 
-					frame.stroke(&Path::rectangle(frame_top_left, Size::new(width * scale, height * scale)), outer_stroke);
+					frame.stroke(
+						&Path::rectangle(frame_top_left, Size::new(width * scale, height * scale)),
+						outer_stroke,
+					);
 					frame.stroke(
 						&Path::rectangle(
 							frame_top_left + Vector::new(edge_loss, edge_loss) * scale,
@@ -124,6 +138,8 @@ impl<'a> Program<Message> for WaferView<'a> {
 
 			let die_yield = self.wafer.yield_model.wafer_yield(&self.wafer);
 			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)).round() as usize;
+
+			let die_yield = bad_dies as f32 / die_types.0 as f32;
 			let mut bad = HashSet::with_capacity(bad_dies);
 
 			while bad.len() < bad_dies {
@@ -136,7 +152,10 @@ impl<'a> Program<Message> for WaferView<'a> {
 					let center = Rectangle::new(tl, die_size).center();
 					frame.fill_rectangle(tl, die_size, Color::from_rgb8(70, 70, 70));
 					frame.fill(
-						&Path::circle(center, self.wafer.die.width().min(self.wafer.die.height()) * scale / 5.0),
+						&Path::circle(
+							center,
+							self.wafer.die.width().min(self.wafer.die.height()) * scale / 5.0,
+						),
 						Color::from_rgb8(180, 180, 180),
 					);
 

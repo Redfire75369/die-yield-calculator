@@ -14,9 +14,13 @@ use crate::wafer::{Diameter, Panel, Shape, ShapeOption, Wafer, YieldModel};
 pub fn critical_area(wafer: &Wafer, simple: bool) -> GridRow<'static, Message> {
 	let label = container(text("Critical Area (mm²)")).height(ROW_HEIGHT).center_y();
 	let input = container(
-		NumberInput::new(wafer.critical_area, wafer.die.area(), Message::number_input(Component::CriticalArea))
-			.min(if simple { wafer.die.area() } else { 0.0 })
-			.step(0.5),
+		NumberInput::new(
+			wafer.critical_area,
+			wafer.die.area(),
+			Message::number_input(Component::CriticalArea),
+		)
+		.min(if simple { wafer.die.area() } else { 0.0 })
+		.step(0.5),
 	)
 	.height(ROW_HEIGHT)
 	.center_y();
@@ -31,7 +35,9 @@ pub fn shape(shape: Shape) -> GridRow<'static, Message> {
 		.height(ROW_HEIGHT)
 		.center_y();
 	let picker = match shape {
-		Shape::Wafer(diameter) => container(pick_list(Diameter::ALL, Some(diameter), |d| Message::Shape(Shape::Wafer(d)))),
+		Shape::Wafer(diameter) => container(pick_list(Diameter::ALL, Some(diameter), |d| {
+			Message::Shape(Shape::Wafer(d))
+		})),
 		Shape::Panel(panel) => container(pick_list(Panel::ALL, Some(panel), |p| Message::Shape(Shape::Panel(p)))),
 	};
 	let picker = picker.height(ROW_HEIGHT).center_y();

@@ -35,7 +35,11 @@ pub fn die_size(wafer: &Wafer, reticle_limit: bool) -> GridRow<'static, Message>
 
 	let inputs = column![width_input, height_input];
 
-	let square = checkbox("Square", matches!(wafer.die, Die::Square(_)), Message::checkbox(Component::DieWidth));
+	let square = checkbox(
+		"Square",
+		matches!(wafer.die, Die::Square(_)),
+		Message::checkbox(Component::DieWidth),
+	);
 	let reticle = checkbox("Reticle Limit", reticle_limit, Message::checkbox(Component::Reticle));
 
 	grid_row![labels, inputs, square, reticle]

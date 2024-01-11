@@ -145,6 +145,9 @@ impl Die {
 
 impl Default for Die {
 	fn default() -> Die {
-		Die::Rectangle { width: 8.0, height: 8.0 }
+		Die::Rectangle {
+			width: 8.0,
+			height: 8.0,
+		}
 	}
 }

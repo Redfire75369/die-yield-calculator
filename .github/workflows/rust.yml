@@ -1,0 +1,106 @@
+name: Rust
+
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  SHELL: /bin/bash
+  CARGO_TERM_COLOR: never
+  SCCACHE_GHA_ENABLED: "true"
+
+  RUSTC_WRAPPER: sccache
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-13]
+        include:
+          - os: windows-latest
+            id: windows
+            target: x86_64-pc-windows-msvc
+          - os: macos-13
+            id: macos
+            target: x86_64-apple-darwin
+          - os: ubuntu-latest
+            id: linux
+            target: x86_64-unknown-linux-gnu
+
+    env:
+      TARGET: ${{ matrix.target }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install LLVM
+        if: matrix.id == 'linux'
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "17.0"
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: Cache Cargo Cache and Git Database
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: cargo-${{ matrix.id }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: cargo-${{ matrix.id }}-
+
+      - name: Build Windows
+        if: matrix.id == 'windows'
+        env:
+          RUSTFLAGS: -Clinker=lld-link
+        run: cargo build --release --locked --target $env:TARGET
+
+      - name: Build MacOS
+        if: matrix.id == 'macos'
+        run: cargo build --release --locked --target $TARGET
+
+      - name: Build Linux
+        if: matrix.id == 'linux'
+        env:
+          RUSTFLAGS: -Clinker=clang -Clink-arg=-fuse-ld=lld
+        run: cargo build --release --locked --target $TARGET
+
+      - name: Upload Executables as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: die-yield-calculator-${{ github.sha }}-${{ matrix.id }}
+          path: target/${{ matrix.target }}/release/die-yield-calculator{{ matrix.id == 'windows' && '.exe' || '' }}
+          if-no-files-found: error
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: Cache Cargo Cache and Git Database
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: cargo-lint-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: cargo-lint-
+
+      - name: Lint
+        run: |
+          cargo fmt --check
+          cargo clippy --locked -- -D warnings

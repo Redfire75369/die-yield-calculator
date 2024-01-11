@@ -16,3 +16,7 @@ features = ["canvas"]
 git = "https://github.com/iced-rs/iced_aw"
 default-features = false
 features = ["grid", "number_input"]
+
+[profile.release]
+lto = "fat"
+strip = "symbols"

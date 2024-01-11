@@ -43,21 +43,27 @@ impl Wafer {
 		self.critical_area = self.critical_area.min(self.die.area());
 	}
 
-	fn die_type(&self, die_coord: &Coordinate) -> DieType {
+	fn die_type(&self, die_coord: Coordinate) -> DieType {
 		let die = Rectangle::new(die_coord, self.die.width(), self.die.height());
 
 		let (within, within_inner) = match self.shape {
 			Shape::Wafer(diameter) => {
 				let radius = diameter.diameter() / 2.0;
 				let center = Coordinate { x: radius, y: radius };
-				(die.within_radius(&center, radius), die.within_radius(&center, radius - self.edge_loss))
+				(
+					die.within_radius(&center, radius),
+					die.within_radius(&center, radius - self.edge_loss),
+				)
 			}
 			Shape::Panel(panel) => {
 				let (width, height) = panel.dimensions();
 				let edge_loss = self.edge_loss;
-				let outer = Rectangle::new(&Coordinate { x: 0.0, y: 0.0 }, width, height);
+				let outer = Rectangle::new(Coordinate { x: 0.0, y: 0.0 }, width, height);
 				let inner = Rectangle::new(
-					&Coordinate { x: edge_loss, y: edge_loss },
+					Coordinate {
+						x: edge_loss,
+						y: edge_loss,
+					},
 					width - 2.0 * edge_loss,
 					height - 2.0 * edge_loss,
 				);
@@ -109,7 +115,7 @@ impl Wafer {
 								+ ((y as f32) - 0.5 * (vertical as f32)).floor() * reticle.height()
 								+ y_offset + self.translation.1,
 						};
-						(self.die_type(&coord), coord)
+						(self.die_type(coord), coord)
 					})
 					.collect()
 			})

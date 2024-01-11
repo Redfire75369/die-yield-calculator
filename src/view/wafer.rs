@@ -136,7 +136,7 @@ impl<'a> Program<Message> for WaferView<'a> {
 				}
 			}
 
-			let die_yield = self.wafer.yield_model.wafer_yield(&self.wafer);
+			let die_yield = self.wafer.yield_model.wafer_yield(self.wafer);
 			let bad_dies = ((die_types.0 as f32) * (1.0 - die_yield)).round() as usize;
 
 			let die_yield = bad_dies as f32 / die_types.0 as f32;

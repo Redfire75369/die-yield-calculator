@@ -35,11 +35,17 @@ pub struct Rectangle {
 }
 
 impl Rectangle {
-	pub fn new(bl: &Coordinate, width: f32, height: f32) -> Rectangle {
+	pub fn new(bl: Coordinate, width: f32, height: f32) -> Rectangle {
 		Rectangle {
-			bl: bl.clone(),
-			br: Coordinate { x: bl.x + width, y: bl.y },
-			tl: Coordinate { x: bl.x, y: bl.y + height },
+			bl,
+			br: Coordinate {
+				x: bl.x + width,
+				y: bl.y,
+			},
+			tl: Coordinate {
+				x: bl.x,
+				y: bl.y + height,
+			},
 			tr: Coordinate {
 				x: bl.x + width,
 				y: bl.y + height,

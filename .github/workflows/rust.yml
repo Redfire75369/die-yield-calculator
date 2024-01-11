@@ -74,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: die-yield-calculator-${{ github.sha }}-${{ matrix.id }}
-          path: target/${{ matrix.target }}/release/die-yield-calculator{{ matrix.id == 'windows' && '.exe' || '' }}
+          path: target/${{ matrix.target }}/release/die-yield-calculator${{ matrix.id == 'windows' && '.exe' || '' }}
           if-no-files-found: error
 
   lint:
